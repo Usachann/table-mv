@@ -49,6 +49,14 @@ export default defineNuxtConfig({
     client: false,
     server: false,
   },
+  nitro: {
+    externals: {
+      inline: ["@prisma/client", "prisma"],
+    },
+    prerender: {
+      crawlLinks: false,
+    },
+  },
 
   compatibilityDate: "2025-03-16",
 });
