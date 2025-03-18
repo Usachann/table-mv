@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Record {
+  id                      String         @id @default(auto()) @map("_id") @db.ObjectId
+  dateTime                DateTime // Дата создания записи (уникальная)
+  workTimeEnd             Int // Время окончания смены
+  hospitalName            String // Название клиники
+  recordStatus            String // Статус записи (открыто/закрыто)
+  shootsCount             Int? // Количество съемок
+  hospitalDischargesCount Int? // Количество выписок из роддома
+  staffInShift            StaffInShift[]
+  tableData               TableData[]
+}
+
+type StaffInShift {
+  recordId           String
+  staffName          String // Имя сотрудника
+  staff              String // Должность (например, фотограф)
+  staffTransportCost Int // Транспортные расходы
+  inShift            Boolean // Был ли в смене
+}
+
+type TableData {
+  recordId          String
+  floor             String // Этаж
+  nurseName         String? // Имя медсестры
+  surname           String // Фамилия
+  motherPhone       String? // Телефон матери
+  motherName        String? // Имя матери
+  fatherPhone       String? // Телефон отца
+  fatherName        String? // Имя отца
+  gender            String // Пол ребенка
+  childNumber       Int // Номер ребенка (если многодетная семья)
+  time              DateTime // Время выписки
+  notes             String? // Заметки (необязательно)
+  tableRecordStatus String // Статус  (снимались/не снимались)
+  OPN               Boolean
+}
+
+//при создании новой выписки  в таблице задавать tableRecordStatus 

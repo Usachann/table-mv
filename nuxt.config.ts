@@ -1,0 +1,54 @@
+import pkg from "./package.json";
+
+export default defineNuxtConfig({
+  future: {
+    compatibilityVersion: 4,
+  },
+
+  experimental: {
+    appManifest: false,
+  },
+
+  debug: false,
+  ssr: true,
+  devtools: { enabled: true },
+
+  runtimeConfig: {
+    public: {
+      APP_VERSION: pkg.version,
+      APP_NAME: pkg.name,
+      APP_MODE: process.env?.NODE_ENV,
+    },
+  },
+
+  modules: ["@pinia/nuxt", "@nuxt/fonts", "@prisma/nuxt", "@vueuse/nuxt"],
+  prisma: {
+    autoSetupPrisma: true, //чтобы юзать типа, npm run postinstall
+  },
+  css: ["@/assets/scss/main.scss"],
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `
+            @use "@/assets/scss/_vars.scss" as *;
+            @use "@/assets/scss/_mixins.scss" as *;
+          `,
+        },
+      },
+    },
+  },
+  fonts: {
+    families: [{ name: "montserrat", provider: "google" }],
+  },
+  build: {
+    transpile: ["nuxt"],
+  },
+
+  sourcemap: {
+    client: false,
+    server: false,
+  },
+
+  compatibilityDate: "2025-03-16",
+});

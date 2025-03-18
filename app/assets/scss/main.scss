@@ -1,0 +1,122 @@
+@use "_vars";
+@use "_mixins";
+
+/* 1. Применить box-sizing: border-box ко всем элементам */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* 2. Сброс padding и margin */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#__nuxt {
+  width: 100%;
+  height: 100dvh;
+}
+
+/* 3. Указать background-repeat: no-repeat для всех элементов и псевдоэлементов */
+* {
+  background-repeat: no-repeat;
+}
+
+/* 4. Наследовать text-decoration и vertical-align к ::before и ::after */
+::before,
+::after {
+  text-decoration: inherit;
+  vertical-align: inherit;
+}
+
+/* 5. Удалить outline при наведении во всех браузерах */
+*:focus {
+  outline: none;
+}
+
+/* 6. Указать font-family: monospace в элементах кода */
+code,
+kbd,
+samp,
+pre {
+  font-family: monospace;
+}
+
+/* 7. Сброс border-radius в элементах ввода */
+input,
+textarea,
+select,
+button {
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* 8. Указать наследование шрифтов элементов формы */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* 9. Удалить стиль кнопок по умолчанию во всех браузерах */
+button {
+  all: unset;
+  cursor: pointer;
+}
+
+/* 10. Указать возможность изменения размера текстовой области по вертикали */
+textarea {
+  resize: vertical;
+}
+
+/* 11. Применить cursor: pointer к элементам кнопок */
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  cursor: pointer;
+}
+
+/* 12. Применить tab-size: 4 в html */
+html {
+  tab-size: 4;
+}
+
+/* 13. Сделать стиль select таким же, как у стандартного ввода */
+select {
+  appearance: none;
+  background-color: transparent;
+  border: 1px solid currentColor;
+  padding: 0.5em;
+}
+
+/* 14. Установить стиль cursor по атрибутам ARIA */
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* 15. Скрыть контент с экранов, но не с программ чтения с экрана */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
