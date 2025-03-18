@@ -22,9 +22,9 @@ export default defineNuxtConfig({
   },
 
   modules: ["@pinia/nuxt", "@nuxt/fonts", "@prisma/nuxt", "@vueuse/nuxt"],
-  prisma: {
-    autoSetupPrisma: true, //чтобы юзать типа, npm run postinstall
-  },
+  // prisma: {
+  //   autoSetupPrisma: true, //чтобы юзать типа, npm run postinstall
+  // },
   css: ["@/assets/scss/main.scss"],
   vite: {
     css: {
