@@ -28,7 +28,7 @@
           <option
             v-for="hospital in hospitals"
             :key="hospital.id"
-            :value="hospital.id"
+            :value="hospital.name"
           >
             {{ hospital.name }}
           </option>

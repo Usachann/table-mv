@@ -68,10 +68,14 @@ export async function sendDayReportEmail(data: EmailData) {
     )
     .join("");
 
+  const shotCntProcent = Math.floor(
+    (data.shootsCount / data.hospitalDischargesCount) * 100
+  );
+
   const mailOptions = {
     from: process.env.SMTP_FROM,
     to: process.env.NOTIFICATION_EMAIL,
-    subject: `Отчет за день - ${data.hospitalName} (${data.date})`,
+    subject: `${data.hospitalName} ${data.date} ${data.shootsCount}/${data.hospitalDischargesCount}/${shotCntProcent}%`,
     html: `
     <style>
       table {

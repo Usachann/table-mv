@@ -73,9 +73,9 @@ function autoResize(event: Event) {
 }
 
 function addRow() {
-  const newRow: TableData = {
+  rows.value.push({
     recordId: uuidv4(),
-    floor: String(1),
+    floor: String(rows.value.length + 1),
     nurseName: "",
     surname: "",
     motherPhone: "",
@@ -88,9 +88,7 @@ function addRow() {
     notes: "",
     tableRecordStatus: TABLE_RECORD_STATUSES.NOT_SHOT,
     OPN: false,
-  };
-
-  rows.value.push(newRow);
+  });
 }
 
 function handleTimeChange(event: Event, row: TableData) {
@@ -155,7 +153,6 @@ async function handleConfirmClose() {
       },
       body: JSON.stringify({ record: updatedRecord }),
     });
-    console.log("response, ", response);
 
     if (!response.success) {
       throw new Error("Ошибка при закрытии дня");
@@ -163,6 +160,7 @@ async function handleConfirmClose() {
 
     updateRecord(RECORD_STATUS.CLOSED);
     showConfirmModal.value = false;
+    navigateTo("/");
   } catch (error) {
     console.error("Error closing day:", error);
   }
