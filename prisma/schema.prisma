@@ -20,6 +20,8 @@ model Record {
   hospitalDischargesCount Int? // Количество выписок из роддома
   staffInShift            StaffInShift[]
   tableData               TableData[]
+  recycling               String? // Переработка
+  delayed                 String? // Опоздавшие
 }
 
 type StaffInShift {

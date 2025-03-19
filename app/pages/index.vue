@@ -8,15 +8,16 @@
       v-else-if="currentRecord"
       :record="currentRecord"
       @update:record="handleRecordUpdate"
+      @close-day="handleRecordUpdate"
       :key="`record-${currentRecord.id}`"
     />
 
     <div v-else class="no-records">
       <div class="no-records-content">
         <div class="error-message">Записи за сегодня не найдены.</div>
-        <button class="create-record-btn" @click="navigateTo('/crecteRecord')">
+        <UButton type="primary" @click="navigateTo('/crecteRecord')">
           Создать запись
-        </button>
+        </UButton>
       </div>
     </div>
   </div>
@@ -25,21 +26,37 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import type { Record } from "../../typings/record";
+import UButton from "../components/Ui/UButton.vue";
 
 const isLoading = ref(true);
 const currentRecord = ref<Record | null>(null);
+const fechedOpenRecord = ref<Record | null>(null);
 
 async function fetchTodayRecords() {
   try {
     isLoading.value = true;
     const today = new Date().toISOString().split("T")[0];
+
     const data = await $fetch(`/api/record/date/${today}`);
 
     if (data && data.length > 0) {
-      currentRecord.value = data[0];
+      // 🔍 Ищем запись с recordStatus === "открыто"
+      const openRecord = data.find(
+        (record: Record) => record.recordStatus === "открыто"
+      );
+
+      console.log("openRecord, ", openRecord);
+      if (openRecord) {
+        currentRecord.value = openRecord;
+      } else {
+        currentRecord.value = null;
+      }
     } else {
-      console.warn("Нет данных на сегодня.");
+      currentRecord.value = null;
+      console.warn("❗ Нет данных на сегодня.");
     }
+
+    isLoading.value = false;
   } catch (err) {
     console.error("Ошибка при загрузке данных:", err);
   } finally {

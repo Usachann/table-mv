@@ -21,7 +21,13 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@pinia/nuxt", "@nuxt/fonts", "@vueuse/nuxt"],
+  modules: [
+    "@pinia/nuxt",
+    "@nuxt/fonts",
+    "@vueuse/nuxt",
+    "@nuxtjs/tailwindcss",
+    "nuxt-nodemailer",
+  ],
 
   css: ["@/assets/scss/main.scss"],
   vite: {

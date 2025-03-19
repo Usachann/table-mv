@@ -30,6 +30,8 @@ export type Record = {
   hospitalDischargesCount: number; // Количество выписок
   staffInShift: StaffInShift[]; // Сотрудники в смене
   tableData: TableData[]; // Данные по пациентам
+  recycling?: string; // Переработка
+  delayed?: string; // Опоздавшие
 };
 
 export type StaffInShift = {
@@ -55,4 +57,9 @@ export type TableData = {
   notes?: string; // Заметки (опционально)
   tableRecordStatus: TableRecordStatus; // Статус записи
   OPN: boolean; // ОПН
+};
+
+export type Hospital = {
+  id: number;
+  name: string;
 };

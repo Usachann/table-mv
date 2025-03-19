@@ -1,8 +1,21 @@
 <script setup lang="ts">
-import type { Record, StaffInShift, TableData } from "../../typings/record";
+import type {
+  Record,
+  StaffInShift,
+  TableData,
+  RecordStatus,
+} from "../../typings/record";
 import { v4 as uuidv4 } from "uuid";
-import { GENDER, TABLE_RECORD_STATUSES } from "../../typings/record";
+import {
+  GENDER,
+  TABLE_RECORD_STATUSES,
+  RECORD_STATUS,
+} from "../../typings/record";
 import { ref, watch, computed } from "vue";
+import TextInput from "./Ui/TextInput.vue";
+import ConfirmModal from "./Ui/ConfirmModal.vue";
+import UButton from "./Ui/UButton.vue";
+import { preprocessPhoneInput } from "../../utils/phone";
 
 const props = defineProps<{
   record: Record;
@@ -10,22 +23,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:record", record: Record): void;
+  (e: "close-day", record: Record): void;
 }>();
 
 const staffData = ref<StaffInShift[]>([]);
 const rows = ref<TableData[]>([]);
 
-const recycling = ref("");
-const nurses = ref("");
-const delayed = ref("");
-const staff = ref("");
-const leader = ref("");
-const photographer = ref("");
-const videographer = ref("");
-const staffTransportCost = ref<number | null>(null);
-const leaderTransportCost = ref<number | null>(null);
-const photographerTransportCost = ref<number | null>(null);
-const videographerTransportCost = ref<number | null>(null);
+const recycling: Ref<string> = ref("");
+const delayed: Ref<string> = ref(""); //уточнить
+const showConfirmModal = ref(false);
 
 const formatTimeForInput = computed(() => {
   return (date: Date) => {
@@ -37,12 +43,24 @@ const formatTimeForInput = computed(() => {
   };
 });
 
+const shootsCount = computed(() => {
+  return rows.value.filter(
+    (row) => row.tableRecordStatus === TABLE_RECORD_STATUSES.SHOT
+  ).length;
+});
+
+const hospitalDischargesCount = computed(() => {
+  return rows.value.length;
+});
+
 watch(
   () => props.record,
   (newRecord) => {
     if (newRecord) {
       staffData.value = [...newRecord.staffInShift];
       rows.value = [...newRecord.tableData];
+      recycling.value = newRecord.recycling || "";
+      delayed.value = newRecord.delayed || "";
     }
   },
   { immediate: true }
@@ -57,7 +75,7 @@ function autoResize(event: Event) {
 function addRow() {
   const newRow: TableData = {
     recordId: uuidv4(),
-    floor: "1",
+    floor: String(1),
     nurseName: "",
     surname: "",
     motherPhone: "",
@@ -90,56 +108,96 @@ function handleTimeChange(event: Event, row: TableData) {
   row.time = newDate;
 }
 
-const submit = () => {
-  // Собираем все данные из формы
+const updateRecord = (status: RecordStatus | null = null) => {
   const updatedRecord: Record = {
     ...props.record,
-    staffInShift: staffData.value.map((staff) => ({
-      recordId: props.record.id,
-      staffName: staff.staffName || "",
-      staff: staff.staff,
-      staffTransportCost: staff.staffTransportCost,
-      inShift: staff.inShift,
-    })),
-    tableData: rows.value.map((row) => ({
-      recordId: props.record.id,
-      floor: String(row.floor),
-      nurseName: row.nurseName,
-      surname: row.surname,
-      motherPhone: row.motherPhone,
-      motherName: row.motherName,
-      fatherPhone: row.fatherPhone,
-      fatherName: row.fatherName,
-      gender: row.gender,
-      childNumber: row.childNumber,
-      time: new Date(row.time),
-      notes: row.notes,
-      tableRecordStatus: row.tableRecordStatus,
-      OPN: Boolean(row.OPN),
-    })),
+    recordStatus: status || props.record.recordStatus,
+    tableData: rows.value,
+    staffInShift: staffData.value,
+    recycling: recycling.value,
+    delayed: delayed.value,
+    shootsCount: shootsCount.value,
+    hospitalDischargesCount: hospitalDischargesCount.value,
   };
 
-  emit("update:record", updatedRecord);
+  if (status === RECORD_STATUS.CLOSED) {
+    emit("close-day", updatedRecord);
+  } else {
+    emit("update:record", updatedRecord);
+  }
 };
 
 function getStaffLabel(index: number): string {
   const labels = ["Ведущая", "Фотограф", "Видеооператор"];
   return labels[index] || `Сотрудник ${index + 1}`;
 }
+
+function handleCloseDay() {
+  showConfirmModal.value = true;
+}
+
+async function handleConfirmClose() {
+  try {
+    const updatedRecord = {
+      ...props.record,
+      recordStatus: RECORD_STATUS.CLOSED,
+      tableData: rows.value,
+      staffInShift: staffData.value,
+      recycling: recycling.value,
+      delayed: delayed.value,
+      shootsCount: shootsCount.value,
+      hospitalDischargesCount: hospitalDischargesCount.value,
+    };
+    const response = await $fetch("/api/close-record", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ record: updatedRecord }),
+    });
+    console.log("response, ", response);
+
+    if (!response.success) {
+      throw new Error("Ошибка при закрытии дня");
+    }
+
+    updateRecord(RECORD_STATUS.CLOSED);
+    showConfirmModal.value = false;
+  } catch (error) {
+    console.error("Error closing day:", error);
+  }
+}
+
+function handleCancelClose() {
+  showConfirmModal.value = false;
+}
 </script>
 
 <template>
   <div class="table-container">
-    <h3 v-if="record">
-      Дата: {{ new Date(record.dateTime).toLocaleDateString() }} | Роддом:
-      <strong>{{ record.hospitalName }}</strong>
-    </h3>
+    <div v-if="record" class="record-info">
+      <h3>
+        Дата:
+        <strong>{{ new Date(record.dateTime).toLocaleDateString() }}</strong>
+        | Роддом:
+        <strong>{{ record.hospitalName }}</strong>
+      </h3>
+      <h3>
+        Проводилось:
+        <strong>{{ shootsCount }}</strong>
+      </h3>
+      <h3>
+        Выписывалось:
+        <strong>{{ hospitalDischargesCount }}</strong>
+      </h3>
+    </div>
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
             <th>№</th>
             <th>Этаж</th>
+            <th>Снимались</th>
             <th>Медсестра</th>
             <th>Фамилия</th>
             <th>Телефон и имя мамы</th>
@@ -147,49 +205,92 @@ function getStaffLabel(index: number): string {
             <th>Пол</th>
             <th>Какой ребенок</th>
             <th>Время</th>
-            <th>Время и Пометки</th>
-            <th>Снимались</th>
+            <th>Пометки</th>
             <th>ОПН</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(row, index) in rows" :key="index">
             <td>{{ index + 1 }}</td>
-            <td><input v-model="row.floor" type="number" /></td>
             <td>
-              <input
-                v-model="row.nurseName"
-                type="text"
+              <TextInput
+                v-model:input="row.floor"
+                input-type="number"
+                placeholder="Этаж"
+              />
+            </td>
+            <td>
+              <select class="rounded-md" v-model="row.tableRecordStatus">
+                <option value="Снимались">Снимались</option>
+                <option value="Не снимались">Не снимались</option>
+              </select>
+            </td>
+            <td>
+              <TextInput
+                v-model:input="row.nurseName"
+                input-type="text"
                 placeholder="Фамилия"
               />
             </td>
             <td>
-              <input v-model="row.surname" type="text" placeholder="Фамилия" />
+              <TextInput
+                v-model:input="row.surname"
+                input-type="text"
+                placeholder="Фамилия"
+              />
             </td>
             <td>
-              <input v-model="row.motherPhone" type="text" placeholder="Тел." />
-              <input v-model="row.motherName" type="text" placeholder="Имя" />
+              <TextInput
+                v-model:input="row.motherPhone"
+                input-type="phone"
+                placeholder="Тел."
+                class="mb-1"
+                :max="11"
+              />
+              <TextInput
+                v-model:input="row.motherName"
+                input-type="text"
+                placeholder="Имя"
+              />
             </td>
             <td>
-              <input v-model="row.fatherPhone" type="text" placeholder="Тел." />
-              <input v-model="row.fatherName" type="text" placeholder="Имя" />
+              <TextInput
+                v-model:input="row.fatherPhone"
+                input-type="phone"
+                placeholder="Тел."
+                class="mb-1"
+                :max="11"
+              />
+              <TextInput
+                v-model:input="row.fatherName"
+                input-type="text"
+                placeholder="Имя"
+              />
             </td>
             <td>
-              <select v-model="row.gender">
+              <select class="rounded-md" v-model="row.gender">
                 <option value="М">М</option>
                 <option value="Ж">Ж</option>
               </select>
             </td>
-            <td><input v-model="row.childNumber" type="number" min="1" /></td>
             <td>
-              <input
-                :value="formatTimeForInput(row.time)"
-                type="time"
+              <TextInput
+                v-model:input="row.childNumber"
+                input-type="number"
+                placeholder="Номер"
+              />
+            </td>
+            <td>
+              <TextInput
+                :input="formatTimeForInput(row.time)"
+                input-type="time"
+                placeholder="Время"
                 @input="handleTimeChange($event, row)"
               />
             </td>
             <td>
               <textarea
+                class="rounded-lg"
                 v-model="row.notes"
                 rows="1"
                 cols="30"
@@ -198,15 +299,9 @@ function getStaffLabel(index: number): string {
               ></textarea>
             </td>
             <td>
-              <select v-model="row.tableRecordStatus">
-                <option value="Снимались">Снимались</option>
-                <option value="Не снимались">Не снимались</option>
-              </select>
-            </td>
-            <td>
-              <select v-model="row.OPN">
-                <option value="true">Да</option>
-                <option value="false">Нет</option>
+              <select class="rounded-md" v-model="row.OPN">
+                <option :value="true">Да</option>
+                <option :value="false">Нет</option>
               </select>
             </td>
           </tr>
@@ -214,8 +309,10 @@ function getStaffLabel(index: number): string {
       </table>
     </div>
     <div class="buttons-container">
-      <button class="primary" @click.prevent="addRow">Добавить строку</button>
-      <button class="secondary" @click.prevent="submit">Сохранить</button>
+      <UButton type="primary" @click.prevent="addRow">Добавить выписку</UButton>
+      <UButton type="secondary" @click.prevent="updateRecord()">
+        Сохранить
+      </UButton>
     </div>
 
     <div class="additional-info">
@@ -229,20 +326,18 @@ function getStaffLabel(index: number): string {
       >
         Переработка
       </h4>
-      <input
-        class="input-field"
-        v-model="recycling"
-        type="text"
+      <TextInput
+        v-model:input="recycling"
+        input-type="text"
         placeholder="Время последней выписки"
       />
 
       <div style="margin-bottom: 10px">
         <label class="label">Опоздавшие:</label>
-        <input
-          class="input-field"
-          v-model="delayed"
-          type="text"
-          placeholder="Фамилия"
+        <TextInput
+          v-model:input="delayed"
+          input-type="text"
+          placeholder="Фамилии"
         />
       </div>
 
@@ -255,22 +350,30 @@ function getStaffLabel(index: number): string {
       <div v-for="(staff, index) in staffData" :key="index" class="staff-row">
         <label class="label">{{ getStaffLabel(index) }}:</label>
         <div class="staff-inputs">
-          <input
-            class="input-field staff-name"
-            v-model="staff.staffName"
-            type="text"
+          <TextInput
+            v-model:input="staff.staff"
+            input-type="text"
             placeholder="Фамилия"
           />
-          <input
-            class="input-field staff-cost"
-            v-model.number="staff.staffTransportCost"
-            type="number"
+          <TextInput
+            v-model:input="staff.staffTransportCost"
+            input-type="number"
             placeholder="Транспортный расход"
           />
         </div>
       </div>
     </div>
-    <button class="secondary" @click.prevent="submit">Закрыть день</button>
+    <UButton type="secondary" @click.prevent="handleCloseDay">
+      Закрыть день
+    </UButton>
+
+    <ConfirmModal
+      :is-open="showConfirmModal"
+      title="Подтверждение"
+      message="Вы уверены, что хотите закрыть день? Это действие нельзя будет отменить."
+      @confirm="handleConfirmClose"
+      @cancel="handleCancelClose"
+    />
   </div>
 </template>
 
@@ -283,25 +386,22 @@ function getStaffLabel(index: number): string {
   padding: 0 10px;
 }
 
+.record-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
 .buttons-container {
   display: flex;
   gap: 10px;
   margin-top: 10px;
 }
 
-.input-field {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  color: #374151;
-  margin-bottom: 2px;
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  }
-}
 .label {
   font-size: 12px;
   margin-bottom: 0;
@@ -335,48 +435,12 @@ td {
   text-align: left;
 }
 
-input,
 select,
 textarea {
   width: 100%;
   padding: 6px;
   border: 1px solid #ccc;
   font-size: 14px;
-}
-
-button {
-  width: 200px;
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.125rem;
-  padding-block: 0.75rem;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-  border: none;
-
-  &.primary {
-    background-color: #3b82f6;
-    color: white;
-    &:hover {
-      background-color: #2563eb;
-      transform: translateY(-1px);
-    }
-  }
-
-  &.secondary {
-    background-color: #04aa6d;
-    color: white;
-    border: 1px solid #d1d5db;
-    &:hover {
-      background-color: #04aa6d;
-      opacity: 0.8;
-      transform: translateY(-1px);
-    }
-  }
 }
 
 @media (max-width: 768px) {
@@ -416,13 +480,10 @@ button {
   display: flex;
   gap: 1rem;
   flex: 1;
+  min-width: 0;
 }
 
-.staff-name {
-  flex: 2;
-}
-
-.staff-cost {
-  flex: 1;
+.staff-inputs :deep(input) {
+  width: 100%;
 }
 </style>

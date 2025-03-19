@@ -1,13 +1,13 @@
 <template>
   <div class="container">
     <div v-if="!formVisible" class="buttons-container">
-      <button @click.prevent="startShift" class="start-button primary">
+      <UButton type="primary" @click.prevent="startShift">
         Начать смену
-      </button>
+      </UButton>
 
-      <button @click.prevent="continueShift" class="start-button secondary">
+      <UButton type="secondary" @click.prevent="continueShift">
         Продолжить активную смену
-      </button>
+      </UButton>
     </div>
 
     <div v-if="formVisible" class="form">
@@ -15,7 +15,11 @@
 
       <div class="form-group">
         <label>Дата:</label>
-        <input v-model="form.date" type="date" class="input-field" />
+        <TextInput
+          v-model:input="form.date"
+          input-type="date"
+          placeholder="Выберите дату"
+        />
       </div>
 
       <div class="form-group">
@@ -23,10 +27,10 @@
         <select v-model="form.hospital" class="input-field">
           <option
             v-for="hospital in hospitals"
-            :key="hospital"
-            :value="hospital"
+            :key="hospital.id"
+            :value="hospital.id"
           >
-            {{ hospital }}
+            {{ hospital.name }}
           </option>
         </select>
       </div>
@@ -44,23 +48,25 @@
           class="staff-row"
         >
           <div class="staff-inputs">
-            <input
-              v-model="staff.name"
-              type="text"
-              :placeholder="'Сотрудник ' + (index + 1)"
-              class="input-field staff-name"
+            <TextInput
+              v-model:input="staff.name"
+              input-type="text"
+              :placeholder="staff.staffName"
+              class="staff-name"
             />
-            <input
-              v-model.number="staff.transportCost"
-              type="number"
+            <TextInput
+              v-model:input="staff.transportCost"
+              input-type="number"
               placeholder="Транспортный расход"
-              class="input-field transport-cost"
+              class="i transport-cost"
             />
           </div>
         </div>
       </div>
 
-      <button @click="submitForm" class="submit-button">Начать</button>
+      <UButton @click="submitForm" type="primary" :loading="isLoading"
+        >Начать</UButton
+      >
     </div>
   </div>
 </template>
@@ -70,11 +76,15 @@ import { ref, computed } from "vue";
 import { RECORD_STATUS } from "../../typings/record";
 import type { Record } from "../../typings/record";
 import { v4 as uuidv4 } from "uuid";
+import TextInput from "./Ui/TextInput.vue";
+import UButton from "./Ui/UButton.vue";
+import { useHospitalStore } from "../stores/hospitals";
 
 interface Form {
   date: string;
   hospital: string;
   staff: Array<{
+    staffName: string;
     name: string;
     transportCost: number;
   }>;
@@ -83,7 +93,8 @@ interface Form {
 type NewRecord = Omit<Record, "id">;
 
 const formVisible = ref(false);
-const hospitals = ["Роддом №1", "Роддом №2", "Роддом №3", "Роддом №4"];
+const hospitals = useHospitalStore().allHospitals;
+const isLoading = ref(false);
 
 const getCurrentTime = computed(() => {
   const now = new Date();
@@ -103,9 +114,9 @@ const form = ref<Form>({
   date: new Date().toISOString().substr(0, 10),
   hospital: "",
   staff: [
-    { name: "", transportCost: 0 },
-    { name: "", transportCost: 0 },
-    { name: "", transportCost: 0 },
+    { staffName: "Ведущая", name: "", transportCost: 0 },
+    { staffName: "Фотограф", name: "", transportCost: 0 },
+    { staffName: "Оператор", name: "", transportCost: 0 },
   ],
   workTime: getCurrentTime.value,
 });
@@ -117,6 +128,7 @@ async function continueShift() {
 }
 
 async function submitForm() {
+  isLoading.value = true;
   const [hours, minutes] = form.value.workTime.split(":").map(Number);
   const dateTime = new Date(
     `${form.value.date}T${String(hours).padStart(2, "0")}:${String(
@@ -133,8 +145,8 @@ async function submitForm() {
     hospitalDischargesCount: 0,
     staffInShift: form.value.staff.map((staff) => ({
       recordId: uuidv4(),
-      staff: "",
-      staffName: staff.name,
+      staff: staff.name,
+      staffName: staff.staffName,
       staffTransportCost: staff.transportCost,
       inShift: true,
     })),
@@ -151,12 +163,15 @@ async function submitForm() {
       throw error.value;
     }
 
-    console.log("Запись успешно создана:", data.value);
+    isLoading.value = false;
+
     emit("submit", data.value.id);
     formVisible.value = false;
   } catch (error) {
     console.error("Ошибка:", error);
     // TODO: Добавить отображение ошибки пользователю
+  } finally {
+    isLoading.value = false;
   }
 }
 </script>
@@ -177,40 +192,6 @@ async function submitForm() {
   gap: 1rem;
   width: 100%;
   max-width: 380px;
-}
-
-.start-button {
-  width: 100%;
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.125rem;
-  padding-block: 0.75rem;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-  border: none;
-
-  &.primary {
-    background-color: #3b82f6;
-    color: white;
-    &:hover {
-      background-color: #2563eb;
-      transform: translateY(-1px);
-    }
-  }
-
-  &.secondary {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    &:hover {
-      background-color: #e5e7eb;
-      transform: translateY(-1px);
-    }
-  }
 }
 
 .form {
