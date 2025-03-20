@@ -75,7 +75,7 @@ export async function sendDayReportEmail(data: EmailData) {
   const mailOptions = {
     from: process.env.SMTP_FROM,
     to: process.env.NOTIFICATION_EMAIL,
-    subject: `${data.hospitalName} ${data.date} ${data.shootsCount}/${data.hospitalDischargesCount}/${shotCntProcent}%`,
+    subject: `${data.hospitalName} ${data.date} ${data.shootsCount}/${data.hospitalDischargesCount}/ ${shotCntProcent}%`,
     html: `
     <style>
       table {

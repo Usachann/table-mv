@@ -15,7 +15,25 @@ import { ref, watch, computed } from "vue";
 import TextInput from "./Ui/TextInput.vue";
 import ConfirmModal from "./Ui/ConfirmModal.vue";
 import UButton from "./Ui/UButton.vue";
-import { preprocessPhoneInput } from "../../utils/phone";
+import { validatePhone } from "../../utils/phone";
+import { usePhoneInput } from "../composables/usePhoneInput";
+import useVuelidate from "@vuelidate/core";
+
+const validateRules = {
+  motherPhone: {
+    validatePhone,
+  },
+  fatherPhone: {
+    validatePhone,
+  },
+};
+
+const validationState = ref({
+  motherPhone: "",
+  fatherPhone: "",
+});
+
+const { handlePhoneInput } = usePhoneInput(validationState);
 
 const props = defineProps<{
   record: Record;
@@ -23,7 +41,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:record", record: Record): void;
-  (e: "close-day", record: Record): void;
 }>();
 
 const staffData = ref<StaffInShift[]>([]);
@@ -75,7 +92,7 @@ function autoResize(event: Event) {
 function addRow() {
   rows.value.push({
     recordId: uuidv4(),
-    floor: String(rows.value.length + 1),
+    floor: 1,
     nurseName: "",
     surname: "",
     motherPhone: "",
@@ -106,7 +123,13 @@ function handleTimeChange(event: Event, row: TableData) {
   row.time = newDate;
 }
 
+const v$ = useVuelidate(validateRules, validationState);
+
 const updateRecord = (status: RecordStatus | null = null) => {
+  if (!rows.value.length) {
+    return;
+  }
+
   const updatedRecord: Record = {
     ...props.record,
     recordStatus: status || props.record.recordStatus,
@@ -118,11 +141,7 @@ const updateRecord = (status: RecordStatus | null = null) => {
     hospitalDischargesCount: hospitalDischargesCount.value,
   };
 
-  if (status === RECORD_STATUS.CLOSED) {
-    emit("close-day", updatedRecord);
-  } else {
-    emit("update:record", updatedRecord);
-  }
+  emit("update:record", updatedRecord);
 };
 
 function getStaffLabel(index: number): string {
@@ -135,6 +154,7 @@ function handleCloseDay() {
 }
 
 async function handleConfirmClose() {
+  v$.value.$touch();
   try {
     const updatedRecord = {
       ...props.record,
@@ -160,7 +180,7 @@ async function handleConfirmClose() {
 
     updateRecord(RECORD_STATUS.CLOSED);
     showConfirmModal.value = false;
-    navigateTo("/");
+    navigateTo("/crecteRecord");
   } catch (error) {
     console.error("Error closing day:", error);
   }
@@ -240,10 +260,11 @@ function handleCancelClose() {
             <td>
               <TextInput
                 v-model:input="row.motherPhone"
-                input-type="phone"
+                input-type="text"
                 placeholder="Тел."
                 class="mb-1"
-                :max="11"
+                :max="17"
+                @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
               />
               <TextInput
                 v-model:input="row.motherName"
@@ -254,10 +275,11 @@ function handleCancelClose() {
             <td>
               <TextInput
                 v-model:input="row.fatherPhone"
-                input-type="phone"
+                input-type="text"
                 placeholder="Тел."
                 class="mb-1"
-                :max="11"
+                :max="17"
+                @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
               />
               <TextInput
                 v-model:input="row.fatherName"
@@ -378,7 +400,6 @@ function handleCancelClose() {
 <style lang="scss" scoped>
 .table-container {
   width: 100%;
-  overflow-x: auto;
   margin-bottom: 50px;
   margin-top: 50px;
   padding: 0 10px;

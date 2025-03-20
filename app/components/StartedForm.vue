@@ -33,6 +33,7 @@
             {{ hospital.name }}
           </option>
         </select>
+        <p v-if="v$.hospital.$error" class="error">Роддом обязателен</p>
       </div>
 
       <div class="form-group">
@@ -72,13 +73,22 @@
 </template>
 
 <script setup lang="ts">
+import TextInput from "./Ui/TextInput.vue";
+import UButton from "./Ui/UButton.vue";
+
 import { ref, computed } from "vue";
 import { RECORD_STATUS } from "../../typings/record";
 import type { Record } from "../../typings/record";
 import { v4 as uuidv4 } from "uuid";
-import TextInput from "./Ui/TextInput.vue";
-import UButton from "./Ui/UButton.vue";
 import { useHospitalStore } from "../stores/hospitals";
+import useVuelidate from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
+
+const validateRules = {
+  hospital: {
+    required,
+  },
+};
 
 interface Form {
   date: string;
@@ -91,6 +101,7 @@ interface Form {
   workTime: string;
 }
 type NewRecord = Omit<Record, "id">;
+const emit = defineEmits(["submit"]);
 
 const formVisible = ref(false);
 const hospitals = useHospitalStore().allHospitals;
@@ -121,13 +132,18 @@ const form = ref<Form>({
   workTime: getCurrentTime.value,
 });
 
-const emit = defineEmits(["submit"]);
+const v$ = useVuelidate(validateRules, form);
 
 async function continueShift() {
   navigateTo("/");
 }
 
 async function submitForm() {
+  v$.value.$touch();
+  if (v$.value.$invalid) {
+    return;
+  }
+
   isLoading.value = true;
   const [hours, minutes] = form.value.workTime.split(":").map(Number);
   const dateTime = new Date(
@@ -158,13 +174,10 @@ async function submitForm() {
       method: "POST",
       body: newRecord,
     });
-
     if (error.value) {
       throw error.value;
     }
-
     isLoading.value = false;
-
     emit("submit", data.value.id);
     formVisible.value = false;
   } catch (error) {
@@ -177,6 +190,10 @@ async function submitForm() {
 </script>
 
 <style lang="scss" scoped>
+.error {
+  @include Error;
+}
+
 .container {
   height: 100vh;
   display: flex;
@@ -258,22 +275,5 @@ async function submitForm() {
 
 .transport-cost {
   flex: 1;
-}
-
-.submit-button {
-  width: 100%;
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  background-color: #3b82f6;
-  color: white;
-  font-size: 1.125rem;
-  padding-block: 0.75rem;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text &:hover {
-    background-color: #2563eb;
-  }
 }
 </style>

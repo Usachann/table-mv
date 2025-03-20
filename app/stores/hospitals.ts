@@ -19,3 +19,5 @@ export const useHospitalStore = defineStore("hospitalStore", {
 
   actions: {},
 });
+
+// TODO: Добавить метод для получения списка роддомов из API

@@ -34,7 +34,7 @@ type StaffInShift {
 
 type TableData {
   recordId          String
-  floor             String // Этаж
+  floor             Int // Этаж
   nurseName         String? // Имя медсестры
   surname           String // Фамилия
   motherPhone       String? // Телефон матери
@@ -46,7 +46,7 @@ type TableData {
   time              DateTime // Время выписки
   notes             String? // Заметки (необязательно)
   tableRecordStatus String // Статус  (снимались/не снимались)
-  OPN               Boolean
+  OPN               Boolean // ОПН
 }
 
 //при создании новой выписки  в таблице задавать tableRecordStatus 

@@ -44,7 +44,7 @@ export type StaffInShift = {
 
 export type TableData = {
   recordId: string; // ID записи, к которой относится
-  floor: string; // Этаж
+  floor: number; // Этаж
   nurseName: string; // Имя медсестры
   surname: string; // Фамилия
   motherPhone?: string; // Телефон матери

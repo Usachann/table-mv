@@ -8,7 +8,6 @@
       v-else-if="currentRecord"
       :record="currentRecord"
       @update:record="handleRecordUpdate"
-      @close-day="handleRecordUpdate"
       :key="`record-${currentRecord.id}`"
     />
 

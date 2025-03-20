@@ -1,6 +1,17 @@
+@use "./vars" as vars;
+
 @mixin Title {
   font-size: 32px;
   font-weight: 500;
   line-height: 32px;
   letter-spacing: -0, 03em;
+}
+
+@mixin Error {
+  color: vars.$error; // Теперь все правильно
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 12px;
+  letter-spacing: -0, 03em;
+  margin-top: 0.5em;
 }

@@ -1,5 +1,5 @@
 import prisma from "~~/lib/prisma";
-import type { Record } from "../../../typings/record";
+import type { Record, TableData, StaffInShift } from "../../../typings/record";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -23,14 +23,14 @@ export default defineEventHandler(async (event) => {
         recordStatus: body.recordStatus,
         shootsCount: body.shootsCount,
         hospitalDischargesCount: body.hospitalDischargesCount,
-        staffInShift: body.staffInShift.map((staff) => ({
+        staffInShift: body.staffInShift.map((staff: StaffInShift) => ({
           recordId: id,
           staffName: staff.staffName,
           staff: staff.staff,
           staffTransportCost: staff.staffTransportCost,
           inShift: staff.inShift,
         })),
-        tableData: body.tableData.map((row) => ({
+        tableData: body.tableData.map((row: TableData) => ({
           recordId: id,
           floor: row.floor,
           nurseName: row.nurseName,
