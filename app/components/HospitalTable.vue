@@ -158,6 +158,7 @@ function getStaffLabel(index: number): string {
 }
 
 function handleCloseDay() {
+  if (!rows.value.length) return;
   showConfirmModal.value = true;
 }
 

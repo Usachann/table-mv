@@ -13,7 +13,7 @@
 
     <div v-else class="no-records">
       <div class="no-records-content">
-        <UButton type="primary" @click="navigateTo('/crecteRecord')">
+        <UButton type="primary" @click.prevent="navigateTo('/crecteRecord')">
           Создать новую запись
         </UButton>
 
