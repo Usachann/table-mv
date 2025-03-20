@@ -48,7 +48,8 @@ const rows = ref<TableData[]>([]);
 
 const recycling: Ref<string> = ref("");
 const delayed: Ref<string> = ref(""); //уточнить
-const showConfirmModal = ref(false);
+const showConfirmModal: Ref<boolean> = ref(false);
+const isAddingRow: Ref<boolean> = ref(false);
 
 const formatTimeForInput = computed(() => {
   return (date: Date) => {
@@ -92,7 +93,7 @@ function autoResize(event: Event) {
 function addRow() {
   rows.value.push({
     recordId: uuidv4(),
-    floor: 1,
+    floor: 0,
     nurseName: "",
     surname: "",
     motherPhone: "",
@@ -100,12 +101,18 @@ function addRow() {
     fatherPhone: "",
     fatherName: "",
     gender: GENDER.MALE,
-    childNumber: 1,
+    childNumber: 0,
     time: new Date(),
     notes: "",
     tableRecordStatus: TABLE_RECORD_STATUSES.NOT_SHOT,
     OPN: false,
   });
+  isAddingRow.value = true;
+}
+
+function cancelAddRow() {
+  rows.value.pop();
+  isAddingRow.value = false;
 }
 
 function handleTimeChange(event: Event, row: TableData) {
@@ -142,6 +149,7 @@ const updateRecord = (status: RecordStatus | null = null) => {
   };
 
   emit("update:record", updatedRecord);
+  isAddingRow.value = false;
 };
 
 function getStaffLabel(index: number): string {
@@ -329,7 +337,14 @@ function handleCancelClose() {
       </table>
     </div>
     <div class="buttons-container">
-      <UButton type="primary" @click.prevent="addRow">Добавить выписку</UButton>
+      <template v-if="!isAddingRow">
+        <UButton type="primary" @click.prevent="addRow"
+          >Добавить выписку</UButton
+        >
+      </template>
+      <template v-else>
+        <UButton type="danger" @click.prevent="cancelAddRow">Отмена</UButton>
+      </template>
       <UButton type="secondary" @click.prevent="updateRecord()">
         Сохранить
       </UButton>
