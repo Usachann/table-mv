@@ -18,6 +18,7 @@ import UButton from "./Ui/UButton.vue";
 import { validatePhone } from "../../utils/phone";
 import { usePhoneInput } from "../composables/usePhoneInput";
 import useVuelidate from "@vuelidate/core";
+import StaffNamesAndTransportCost from "./StaffNamesAndTransportCost.vue";
 
 const validateRules = {
   motherPhone: {
@@ -46,6 +47,10 @@ const emit = defineEmits<{
 const staffData = ref<StaffInShift[]>([]);
 const rows = ref<TableData[]>([]);
 
+const staffComponent = ref<InstanceType<
+  typeof StaffNamesAndTransportCost
+> | null>(null);
+
 const recycling: Ref<string> = ref("");
 const delayed: Ref<string> = ref(""); //уточнить
 const showConfirmModal: Ref<boolean> = ref(false);
@@ -71,6 +76,12 @@ const hospitalDischargesCount = computed(() => {
   return rows.value.length;
 });
 
+function autoResize(event: Event) {
+  const target = event.target as HTMLTextAreaElement;
+  target.style.height = "auto";
+  target.style.height = target.scrollHeight + "px";
+}
+
 watch(
   () => props.record,
   (newRecord) => {
@@ -83,13 +94,10 @@ watch(
   },
   { immediate: true }
 );
-
-function autoResize(event: Event) {
-  const target = event.target as HTMLTextAreaElement;
-  target.style.height = "auto";
-  target.style.height = target.scrollHeight + "px";
+function getStaffLabel(index: number): string {
+  const labels = ["Ведущая", "Фотограф", "Видеооператор"];
+  return labels[index] || `Сотрудник ${index + 1}`;
 }
-
 function addRow() {
   rows.value.push({
     recordId: uuidv4(),
@@ -152,12 +160,18 @@ const updateRecord = (status: RecordStatus | null = null) => {
   isAddingRow.value = false;
 };
 
-function getStaffLabel(index: number): string {
-  const labels = ["Ведущая", "Фотограф", "Видеооператор"];
-  return labels[index] || `Сотрудник ${index + 1}`;
-}
+async function handleCloseDay() {
+  // const isValid = await staffComponent.value?.validateForm();
 
-function handleCloseDay() {
+  // if (!isValid) {
+  //   return;
+  // }
+
+  v$.value.$touch();
+  if (v$.value.$invalid) {
+    return;
+  }
+
   if (!rows.value.length) return;
   showConfirmModal.value = true;
 }
@@ -383,21 +397,11 @@ function handleCancelClose() {
         </h4>
       </div>
 
-      <div v-for="(staff, index) in staffData" :key="index" class="staff-row">
-        <label class="label">{{ getStaffLabel(index) }}:</label>
-        <div class="staff-inputs">
-          <TextInput
-            v-model:input="staff.staff"
-            input-type="text"
-            placeholder="Фамилия"
-          />
-          <TextInput
-            v-model:input="staff.staffTransportCost"
-            input-type="number"
-            placeholder="Транспортный расход"
-          />
-        </div>
-      </div>
+      <StaffNamesAndTransportCost
+        ref="staffComponent"
+        :staffData="staffData"
+        :getStaffLabel="getStaffLabel"
+      />
     </div>
     <UButton type="secondary" @click.prevent="handleCloseDay">
       Закрыть день
@@ -502,23 +506,5 @@ textarea {
   .mobile-row textarea {
     width: 100%;
   }
-}
-
-.staff-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 10px;
-}
-
-.staff-inputs {
-  display: flex;
-  gap: 1rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.staff-inputs :deep(input) {
-  width: 100%;
 }
 </style>
