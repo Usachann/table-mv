@@ -28,7 +28,7 @@
 import { defineProps } from "vue";
 import TextInput from "./Ui/TextInput.vue";
 import { useVuelidate } from "@vuelidate/core";
-import { required, helpers } from "@vuelidate/validators";
+import { required, helpers, minValue } from "@vuelidate/validators";
 import type { StaffInShift } from "../../typings/record";
 
 const props = defineProps<{
@@ -40,7 +40,10 @@ const rules = {
   staffData: {
     $each: helpers.forEach({
       staff: { required },
-      staffTransportCost: { required },
+      staffTransportCost: {
+        required,
+        minValue: minValue(1),
+      },
     }),
   },
 };
