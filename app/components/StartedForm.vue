@@ -42,7 +42,10 @@
       </div>
 
       <div class="form-group">
-        <label>Сотрудники на смене:</label>
+        <div class="flex justify-between items-center mb-2">
+          <label class="ml-2">Сотрудники на смене:</label>
+          <label class="ml-2">Транспортный расход:</label>
+        </div>
         <div
           v-for="(staff, index) in form.staff"
           :key="index"
@@ -270,7 +273,7 @@ async function submitForm() {
 }
 
 .staff-name {
-  flex: 2;
+  flex: 1;
 }
 
 .transport-cost {

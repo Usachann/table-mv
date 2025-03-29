@@ -36,6 +36,7 @@
                 <span>Выписок: {{ record.hospitalDischargesCount }}</span>
                 <span>Съемок: {{ record.shootsCount }}</span>
               </div>
+              <div class="fill-form-text">Заполнить бланк</div>
             </div>
           </div>
         </div>
@@ -177,6 +178,7 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   background-color: white;
+  position: relative;
 
   &:hover {
     border-color: #3b82f6;
@@ -204,6 +206,12 @@ onMounted(() => {
     font-size: 0.875rem;
     color: #6b7280;
   }
+}
+
+.fill-form-text {
+  font-weight: 600;
+  color: #3b82f6;
+  font-size: 1.1rem;
 }
 
 .loading {
