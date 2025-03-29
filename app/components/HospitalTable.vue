@@ -21,7 +21,7 @@ import { validatePhone } from "../../utils/phone";
 import { usePhoneInput } from "../composables/usePhoneInput";
 import useVuelidate from "@vuelidate/core";
 import StaffNamesAndTransportCost from "./StaffNamesAndTransportCost.vue";
-import { useAutoSave } from "../composables/useAutosave";
+import { useAutoSave } from "../composables/useAutoSave";
 
 const validateRules = {
   motherPhone: {
@@ -120,6 +120,7 @@ function addRow() {
     notes: "",
     tableRecordStatus: TABLE_RECORD_STATUSES.SHOT,
     OPN: false,
+    isSpecialCase: false,
   });
   isAddingRow.value = true;
 }

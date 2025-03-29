@@ -47,6 +47,7 @@ type TableData {
   notes             String? // Заметки (необязательно)
   tableRecordStatus String // Статус  (снимались/не снимались)
   OPN               Boolean // ОПН
+  isSpecialCase     Boolean // Специальный случай
 }
 
 //при создании новой выписки  в таблице задавать tableRecordStatus 

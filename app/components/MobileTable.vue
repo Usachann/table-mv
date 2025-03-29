@@ -5,9 +5,9 @@
       :key="index"
       class="mobile-row mb-4 p-4 bg-white rounded-lg shadow"
     >
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-between items-center mb-3">
         <h4 class="font-semibold">Запись #{{ index + 1 }}</h4>
-        <select class="rounded-md" v-model="row.tableRecordStatus">
+        <select class="rounded-md w-3/4" v-model="row.tableRecordStatus">
           <option value="Снимались">Снимались</option>
           <option value="Не снимались">Не снимались</option>
         </select>
@@ -15,7 +15,7 @@
 
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-m font-medium text-gray-700 mb-1"
             >Этаж</label
           >
           <TextInput
@@ -25,7 +25,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-m font-medium text-gray-700 mb-1"
             >Медсестра</label
           >
           <TextInput
@@ -37,7 +37,7 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1"
+        <label class="block text-m font-medium text-gray-700 mb-1"
           >Фамилия</label
         >
         <TextInput
@@ -48,7 +48,7 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Мама</label>
+        <label class="block text-m font-medium text-gray-700 mb-1">Мама</label>
         <TextInput
           v-model:input="row.motherPhone"
           input-type="text"
@@ -65,7 +65,7 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Папа</label>
+        <label class="block text-m font-medium text-gray-700 mb-1">Папа</label>
         <TextInput
           v-model:input="row.fatherPhone"
           input-type="text"
@@ -83,9 +83,7 @@
 
       <div class="grid grid-cols-3 gap-4 mb-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Пол</label
-          >
+          <label class="block text-m font-medium text-gray-700 mb-1">Пол</label>
           <select class="rounded-md w-full" v-model="row.gender">
             <option value="М">М</option>
             <option value="Ж">Ж</option>
@@ -93,7 +91,7 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-m font-medium text-gray-700 mb-1"
             >Ребенок</label
           >
           <TextInput
@@ -103,7 +101,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-m font-medium text-gray-700 mb-1"
             >Время</label
           >
           <TextInput
@@ -116,7 +114,7 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1"
+        <label class="block text-m font-medium text-gray-700 mb-1"
           >Пометки</label
         >
         <textarea
@@ -127,12 +125,22 @@
         ></textarea>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">ОПН</label>
+      <div class="mb-3">
+        <label class="block text-m font-medium text-gray-700 mb-1">ОПН</label>
         <select class="rounded-md w-full" v-model="row.OPN">
           <option :value="true">Да</option>
           <option :value="false">Нет</option>
         </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="block text-m font-medium text-gray-700 mb-1"
+          >М/е, ин-цы</label
+        >
+        <input
+          type="checkbox"
+          v-model="row.isSpecialCase"
+          class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+        />
       </div>
     </div>
   </div>
@@ -182,8 +190,9 @@ function autoResize(event: Event) {
 }
 
 .mobile-row h4 {
-  margin-bottom: 15px;
+  // margin-bottom: 15px;
   font-weight: 600;
+  margin-right: 10px;
 }
 
 .mobile-row label {
@@ -196,11 +205,12 @@ function autoResize(event: Event) {
 .mobile-row input,
 .mobile-row select,
 .mobile-row textarea {
-  width: 100%;
+  // width: 100%;
   padding: 8px;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   font-size: 14px;
+  background-color: #ffffff;
 }
 
 .mobile-row textarea {

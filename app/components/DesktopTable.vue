@@ -15,6 +15,7 @@
           <th>Время</th>
           <th>Пометки</th>
           <th>ОПН</th>
+          <th>М/е, ин-цы</th>
         </tr>
       </thead>
       <tbody>
@@ -114,6 +115,15 @@
               <option :value="true">Да</option>
               <option :value="false">Нет</option>
             </select>
+          </td>
+          <td>
+            <div class="flex items-center justify-center">
+              <input
+                type="checkbox"
+                v-model="row.isSpecialCase"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              />
+            </div>
           </td>
         </tr>
       </tbody>

@@ -58,6 +58,7 @@ export type TableData = {
   notes?: string; // Заметки (опционально)
   tableRecordStatus: TableRecordStatus; // Статус записи
   OPN: boolean; // ОПН
+  isSpecialCase: boolean; // Малоимущие/иностранцы
 };
 
 export type Hospital = {
