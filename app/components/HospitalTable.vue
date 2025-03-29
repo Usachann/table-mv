@@ -15,6 +15,8 @@ import { ref, watch, computed } from "vue";
 import TextInput from "./Ui/TextInput.vue";
 import ConfirmModal from "./Ui/ConfirmModal.vue";
 import UButton from "./Ui/UButton.vue";
+import DesktopTable from "./DesktopTable.vue";
+import MobileTable from "./MobileTable.vue";
 import { validatePhone } from "../../utils/phone";
 import { usePhoneInput } from "../composables/usePhoneInput";
 import useVuelidate from "@vuelidate/core";
@@ -94,10 +96,12 @@ watch(
   },
   { immediate: true }
 );
+
 function getStaffLabel(index: number): string {
   const labels = ["Ведущая", "Фотограф", "Видеооператор"];
   return labels[index] || `Сотрудник ${index + 1}`;
 }
+
 function addRow() {
   rows.value.push({
     recordId: uuidv4(),
@@ -112,7 +116,7 @@ function addRow() {
     childNumber: 0,
     time: new Date(),
     notes: "",
-    tableRecordStatus: TABLE_RECORD_STATUSES.NOT_SHOT,
+    tableRecordStatus: TABLE_RECORD_STATUSES.SHOT,
     OPN: false,
   });
   isAddingRow.value = true;
@@ -234,268 +238,25 @@ function handleCancelClose() {
     </div>
 
     <!-- Десктопная версия таблицы -->
-    <div class="table-wrapper hidden md:block">
-      <table>
-        <thead>
-          <tr>
-            <th>№</th>
-            <th>Этаж</th>
-            <th>Снимались</th>
-            <th>Медсестра</th>
-            <th>Фамилия</th>
-            <th>Телефон и имя мамы</th>
-            <th>Телефон и имя папы</th>
-            <th>Пол</th>
-            <th>Какой ребенок</th>
-            <th>Время</th>
-            <th>Пометки</th>
-            <th>ОПН</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in rows" :key="index">
-            <td>{{ index + 1 }}</td>
-            <td>
-              <TextInput
-                v-model:input="row.floor"
-                input-type="number"
-                placeholder="Этаж"
-              />
-            </td>
-            <td>
-              <select class="rounded-md" v-model="row.tableRecordStatus">
-                <option value="Снимались">Снимались</option>
-                <option value="Не снимались">Не снимались</option>
-              </select>
-            </td>
-            <td>
-              <TextInput
-                v-model:input="row.nurseName"
-                input-type="text"
-                placeholder="Фамилия"
-              />
-            </td>
-            <td>
-              <TextInput
-                v-model:input="row.surname"
-                input-type="text"
-                placeholder="Фамилия"
-              />
-            </td>
-            <td>
-              <TextInput
-                v-model:input="row.motherPhone"
-                input-type="text"
-                placeholder="Тел."
-                class="mb-1"
-                :max="17"
-                @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
-              />
-              <TextInput
-                v-model:input="row.motherName"
-                input-type="text"
-                placeholder="Имя"
-              />
-            </td>
-            <td>
-              <TextInput
-                v-model:input="row.fatherPhone"
-                input-type="text"
-                placeholder="Тел."
-                class="mb-1"
-                :max="17"
-                @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
-              />
-              <TextInput
-                v-model:input="row.fatherName"
-                input-type="text"
-                placeholder="Имя"
-              />
-            </td>
-            <td>
-              <select class="rounded-md" v-model="row.gender">
-                <option value="М">М</option>
-                <option value="Ж">Ж</option>
-              </select>
-            </td>
-            <td>
-              <TextInput
-                v-model:input="row.childNumber"
-                input-type="number"
-                placeholder="Номер"
-              />
-            </td>
-            <td>
-              <TextInput
-                :input="formatTimeForInput(row.time)"
-                input-type="time"
-                placeholder="Время"
-                @input="handleTimeChange($event, row)"
-              />
-            </td>
-            <td>
-              <textarea
-                class="rounded-lg"
-                v-model="row.notes"
-                rows="1"
-                cols="30"
-                style="resize: none; overflow: hidden; height: 50px"
-                @input="autoResize($event)"
-              ></textarea>
-            </td>
-            <td>
-              <select class="rounded-md" v-model="row.OPN">
-                <option :value="true">Да</option>
-                <option :value="false">Нет</option>
-              </select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="hidden md:block">
+      <DesktopTable
+        :rows="rows"
+        :formatTimeForInput="formatTimeForInput"
+        @phone-input="handlePhoneInput"
+        @time-change="handleTimeChange"
+        @auto-resize="autoResize"
+      />
     </div>
 
     <!-- Мобильная версия таблицы -->
-    <div class="mobile-table md:hidden">
-      <div
-        v-for="(row, index) in rows"
-        :key="index"
-        class="mobile-row mb-4 p-4 bg-white rounded-lg shadow"
-      >
-        <div class="flex justify-between items-center mb-4">
-          <h4 class="font-semibold">Запись #{{ index + 1 }}</h4>
-          <select class="rounded-md" v-model="row.tableRecordStatus">
-            <option value="Снимались">Снимались</option>
-            <option value="Не снимались">Не снимались</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Этаж</label
-            >
-            <TextInput
-              v-model:input="row.floor"
-              input-type="number"
-              placeholder="Этаж"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Медсестра</label
-            >
-            <TextInput
-              v-model:input="row.nurseName"
-              input-type="text"
-              placeholder="Фамилия"
-            />
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Фамилия</label
-          >
-          <TextInput
-            v-model:input="row.surname"
-            input-type="text"
-            placeholder="Фамилия"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Мама</label
-          >
-          <TextInput
-            v-model:input="row.motherPhone"
-            input-type="text"
-            placeholder="Тел."
-            class="mb-1"
-            :max="17"
-            @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
-          />
-          <TextInput
-            v-model:input="row.motherName"
-            input-type="text"
-            placeholder="Имя"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Папа</label
-          >
-          <TextInput
-            v-model:input="row.fatherPhone"
-            input-type="text"
-            placeholder="Тел."
-            class="mb-1"
-            :max="17"
-            @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
-          />
-          <TextInput
-            v-model:input="row.fatherName"
-            input-type="text"
-            placeholder="Имя"
-          />
-        </div>
-
-        <div class="grid grid-cols-3 gap-4 mb-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Пол</label
-            >
-            <select class="rounded-md w-full" v-model="row.gender">
-              <option value="М">М</option>
-              <option value="Ж">Ж</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Ребенок</label
-            >
-            <TextInput
-              v-model:input="row.childNumber"
-              input-type="number"
-              placeholder="Номер"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Время</label
-            >
-            <TextInput
-              :input="formatTimeForInput(row.time)"
-              input-type="time"
-              placeholder="Время"
-              @input="handleTimeChange($event, row)"
-            />
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Пометки</label
-          >
-          <textarea
-            class="rounded-lg w-full"
-            v-model="row.notes"
-            rows="2"
-            @input="autoResize($event)"
-          ></textarea>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >ОПН</label
-          >
-          <select class="rounded-md w-full" v-model="row.OPN">
-            <option :value="true">Да</option>
-            <option :value="false">Нет</option>
-          </select>
-        </div>
-      </div>
+    <div class="md:hidden">
+      <MobileTable
+        :rows="rows"
+        :formatTimeForInput="formatTimeForInput"
+        @phone-input="handlePhoneInput"
+        @time-change="handleTimeChange"
+        @auto-resize="autoResize"
+      />
     </div>
 
     <div class="buttons-container">
@@ -507,9 +268,9 @@ function handleCancelClose() {
       <template v-else>
         <UButton type="danger" @click.prevent="cancelAddRow">Отмена</UButton>
       </template>
-      <UButton type="secondary" @click.prevent="updateRecord()">
-        Сохранить
-      </UButton>
+      <UButton type="secondary" @click.prevent="updateRecord()"
+        >Сохранить</UButton
+      >
     </div>
 
     <div class="additional-info">
@@ -602,72 +363,5 @@ function handleCancelClose() {
 h3 {
   font-size: 18px;
   margin-bottom: 10px;
-}
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
-  margin-bottom: 20px;
-}
-
-th,
-td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
-}
-
-select,
-textarea {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-.mobile-table {
-  display: flex;
-  flex-direction: column;
-}
-
-.mobile-row {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  margin-bottom: 15px;
-}
-
-.mobile-row h4 {
-  margin-bottom: 15px;
-  font-weight: 600;
-}
-
-.mobile-row label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 5px;
-  color: #4a5568;
-}
-
-.mobile-row input,
-.mobile-row select,
-.mobile-row textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.mobile-row textarea {
-  resize: vertical;
-  min-height: 80px;
 }
 </style>

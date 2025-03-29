@@ -8,28 +8,29 @@
         v-model:input="staff.staff"
         input-type="text"
         placeholder="Фамилия"
-        :error="v$.staffData?.$each?.$response.$errors[index].staff.length"
+        :error="v$.staffData.$each.$response.$errors[index]?.staff?.length > 0"
       />
       <TextInput
         v-model:input="staff.staffTransportCost"
         input-type="number"
         placeholder="Транспортный расход"
         :error="
-          v$.staffData?.$each?.$response.$errors[index].staffTransportCost
-            .length
+          v$.staffData.$each.$response.$errors[index].staffTransportCost.length
         "
       />
-      <!-- <pre>{{ v$.staffData?.$each?.$response.$errors[index] }}</pre> -->
+      <!-- <pre>{{
+        v$.staffData.$each.$response.$data[index].staffTransportCost
+      }}</pre> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
 import TextInput from "./Ui/TextInput.vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers, minValue } from "@vuelidate/validators";
 import type { StaffInShift } from "../../typings/record";
+import { computed } from "vue";
 
 const props = defineProps<{
   staffData: StaffInShift[];

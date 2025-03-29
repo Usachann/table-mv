@@ -4,10 +4,14 @@ import type { Hospital } from "../../typings/record";
 export const useHospitalStore = defineStore("hospitalStore", {
   state: () => ({
     hospitals: [
-      { id: 1, name: "Роддом №1" },
-      { id: 2, name: "Роддом №2" },
-      { id: 3, name: "Роддом №3" },
-      { id: 4, name: "Роддом №4" },
+      { id: 1, name: "4 Роддом" },
+      { id: 2, name: "7 Роддом" },
+      { id: 3, name: "Видное" },
+      { id: 4, name: "Мытищи" },
+      { id: 5, name: "Щелково" },
+      { id: 6, name: "Подольск" },
+      { id: 7, name: "Одинцово" },
+      { id: 8, name: "Раменское" },
     ] as Hospital[],
   }),
 

@@ -6,6 +6,7 @@ export const RECORD_STATUS = {
 export const GENDER = {
   MALE: "М",
   FEMALE: "Ж",
+  TWINS: "ДВ",
 } as const;
 
 export const TABLE_RECORD_STATUSES = {
