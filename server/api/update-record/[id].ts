@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
           notes: row.notes,
           tableRecordStatus: row.tableRecordStatus,
           OPN: row.OPN,
+          isSpecialCase: row.isSpecialCase,
         })),
       },
     });
