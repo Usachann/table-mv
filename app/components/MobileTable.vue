@@ -52,7 +52,7 @@
         <TextInput
           v-model:input="row.motherPhone"
           input-type="text"
-          placeholder="Тел."
+          placeholder="+7"
           class="mb-1"
           :max="17"
           @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
@@ -69,7 +69,7 @@
         <TextInput
           v-model:input="row.fatherPhone"
           input-type="text"
-          placeholder="Тел."
+          placeholder="+7"
           class="mb-1"
           :max="17"
           @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"

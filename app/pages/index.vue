@@ -9,6 +9,7 @@
       :record="currentRecord"
       @update:record="handleRecordUpdate"
       :key="`record-${currentRecord.id}`"
+      :isLoadingOpenRecords="isLoadingOpenRecords"
     />
 
     <div v-else class="no-records">
@@ -51,6 +52,7 @@ import type { Record } from "../../typings/record";
 import UButton from "../components/Ui/UButton.vue";
 
 const isLoading = ref(true);
+const isLoadingOpenRecords = ref(false);
 const currentRecord = ref<Record | null>(null);
 const fetchedOpenRecords = ref<Record[]>([]);
 
@@ -82,7 +84,6 @@ async function fetchTodayRecords() {
     } else {
       currentRecord.value = null;
       fetchedOpenRecords.value = [];
-      console.warn("❗ Нет данных на сегодня.");
     }
   } catch (err) {
     console.error("Ошибка при загрузке данных:", err);
@@ -93,7 +94,7 @@ async function fetchTodayRecords() {
 
 async function handleRecordUpdate(updatedRecord: Record) {
   try {
-    isLoading.value = true;
+    isLoadingOpenRecords.value = true;
     await $fetch(`/api/update-record/${updatedRecord.id}`, {
       method: "POST",
       body: updatedRecord,
@@ -102,31 +103,13 @@ async function handleRecordUpdate(updatedRecord: Record) {
   } catch (err) {
     console.error("Ошибка при обновлении данных:", err);
   } finally {
-    isLoading.value = false;
+    isLoadingOpenRecords.value = false;
   }
 }
 
 onMounted(() => {
   fetchTodayRecords();
 });
-
-// async function handleRecordCreated(recordId: string) {
-//   try {
-//     isLoading.value = true;
-//     const { data, error } = await $fetch(`/api/record/${recordId}`);
-
-//     if (error.value) {
-//       throw error.value;
-//     }
-
-//     currentRecord.value = data.value;
-//   } catch (error) {
-//     console.error("Ошибка при получении данных записи:", error);
-//     // TODO: Добавить отображение ошибки пользователю
-//   } finally {
-//     isLoading.value = false;
-//   }
-// }
 </script>
 
 <style lang="scss" scoped>

@@ -21,6 +21,7 @@ import { validatePhone } from "../../utils/phone";
 import { usePhoneInput } from "../composables/usePhoneInput";
 import useVuelidate from "@vuelidate/core";
 import StaffNamesAndTransportCost from "./StaffNamesAndTransportCost.vue";
+import { useAutoSave } from "../composables/useAutosave";
 
 const validateRules = {
   motherPhone: {
@@ -40,6 +41,7 @@ const { handlePhoneInput } = usePhoneInput(validationState);
 
 const props = defineProps<{
   record: Record;
+  isLoadingOpenRecords: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -113,7 +115,7 @@ function addRow() {
     fatherPhone: "",
     fatherName: "",
     gender: GENDER.MALE,
-    childNumber: 0,
+    childNumber: 1,
     time: new Date(),
     notes: "",
     tableRecordStatus: TABLE_RECORD_STATUSES.SHOT,
@@ -165,12 +167,6 @@ const updateRecord = (status: RecordStatus | null = null) => {
 };
 
 async function handleCloseDay() {
-  // const isValid = await staffComponent.value?.validateForm();
-
-  // if (!isValid) {
-  //   return;
-  // }
-
   v$.value.$touch();
   if (v$.value.$invalid) {
     return;
@@ -216,6 +212,7 @@ async function handleConfirmClose() {
 function handleCancelClose() {
   showConfirmModal.value = false;
 }
+if (rows.value.length > 0) useAutoSave(updateRecord, 10000);
 </script>
 
 <template>
@@ -268,7 +265,10 @@ function handleCancelClose() {
       <template v-else>
         <UButton type="danger" @click.prevent="cancelAddRow">Отмена</UButton>
       </template>
-      <UButton type="secondary" @click.prevent="updateRecord()"
+      <UButton
+        :loading="isLoadingOpenRecords"
+        type="secondary"
+        @click.prevent="updateRecord()"
         >Сохранить</UButton
       >
     </div>
@@ -291,7 +291,9 @@ function handleCancelClose() {
       />
 
       <div style="margin-bottom: 10px">
-        <label class="label">Опоздавшие:</label>
+        <label class="block text-gray-700 font-semibold mb-1"
+          >Опоздавшие:</label
+        >
         <TextInput
           v-model:input="delayed"
           input-type="text"
@@ -349,11 +351,6 @@ function handleCancelClose() {
   display: flex;
   gap: 10px;
   margin-top: 10px;
-}
-
-.label {
-  font-size: 12px;
-  margin-bottom: 0;
 }
 
 .additional-info {
