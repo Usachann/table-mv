@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     if (!id) {
       throw createError({
         statusCode: 400,
-        message: "ID записи не указан",
+        statusMessage: "ID записи не указан",
       });
     }
 
@@ -49,12 +49,19 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    if (!updatedRecord) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Запись не найдена",
+      });
+    }
+
     return updatedRecord;
   } catch (error) {
     console.error("Ошибка при обновлении записи:", error);
     throw createError({
       statusCode: 500,
-      message: "Ошибка при обновлении записи",
+      statusMessage: "Ошибка при обновлении записи",
     });
   }
 });

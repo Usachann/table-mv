@@ -1,21 +1,31 @@
 <template>
   <div>
-    <StartedForm @submit="handleRecordCreated" />
+    <StartedForm @submit="handleRecordCreated" :isLoading="isContentLoading" />
   </div>
 </template>
 
 <script setup lang="ts">
 import StartedForm from "../components/StartedForm.vue";
-const isLoading = ref(false);
+import type { Record } from "../../typings/record";
+import type { ApiError } from "../../typings/apiError";
 
-async function handleRecordCreated(recordId: string) {
+const { isContentLoading, toggleLoading, showError, showMessage } = useToast();
+type NewRecord = Omit<Record, "id">;
+
+async function handleRecordCreated(newRecord: NewRecord) {
   try {
-    isLoading.value = true;
+    toggleLoading(true);
+    await $fetch("/api/record", {
+      method: "POST",
+      body: newRecord,
+    });
+
     navigateTo("/");
   } catch (error) {
     console.error("Ошибка при получении данных записи:", error);
+    showError(error as ApiError);
   } finally {
-    isLoading.value = false;
+    toggleLoading(false);
   }
 }
 </script>

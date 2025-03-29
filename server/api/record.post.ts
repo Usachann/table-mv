@@ -3,7 +3,7 @@ import type { StaffInShift, Record } from "~~/typings/record";
 
 export default defineEventHandler(async (event) => {
   if (event.node.req.method !== "POST") {
-    throw createError({ statusCode: 405, message: "Method Not Allowed" });
+    throw createError({ statusCode: 405, statusMessage: "Method Not Allowed" });
   }
 
   try {
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     console.error("Ошибка при создании записи:", error);
     throw createError({
       statusCode: 500,
-      message:
+      statusMessage:
         error instanceof Error ? error.message : "Ошибка при создании записи",
     });
   }

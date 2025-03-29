@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     if (!emailResult.success) {
       throw createError({
         statusCode: 500,
-        message: "Ошибка при отправке email",
+        statusMessage: "Ошибка при отправке email",
       });
     }
 
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     console.error("Error closing day:", error);
     throw createError({
       statusCode: 500,
-      message: "Ошибка при закрытии дня",
+      statusMessage: "Ошибка при закрытии дня",
     });
   }
 });

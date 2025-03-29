@@ -93,6 +93,10 @@ const validateRules = {
   },
 };
 
+defineProps<{
+  isLoading: boolean;
+}>();
+
 interface Form {
   date: string;
   hospital: string;
@@ -108,7 +112,6 @@ const emit = defineEmits(["submit"]);
 
 const formVisible = ref(false);
 const hospitals = useHospitalStore().allHospitals;
-const isLoading = ref(false);
 
 const getCurrentTime = computed(() => {
   const now = new Date();
@@ -147,7 +150,6 @@ async function submitForm() {
     return;
   }
 
-  isLoading.value = true;
   const [hours, minutes] = form.value.workTime.split(":").map(Number);
   const dateTime = new Date(
     `${form.value.date}T${String(hours).padStart(2, "0")}:${String(
@@ -173,21 +175,9 @@ async function submitForm() {
   };
 
   try {
-    const { data, error } = await useFetch("/api/record", {
-      method: "POST",
-      body: newRecord,
-    });
-    if (error.value) {
-      throw error.value;
-    }
-    isLoading.value = false;
-    emit("submit", data.value.id);
-    formVisible.value = false;
+    emit("submit", newRecord);
   } catch (error) {
     console.error("Ошибка:", error);
-    // TODO: Добавить отображение ошибки пользователю
-  } finally {
-    isLoading.value = false;
   }
 }
 </script>

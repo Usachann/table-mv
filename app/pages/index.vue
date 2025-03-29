@@ -1,8 +1,14 @@
 <template>
   <div class="container">
-    <div v-if="isLoading" class="loading">
-      <div class="spinner"></div>
-    </div>
+    <USpinner
+      v-if="isContentLoading"
+      :isLoading="isContentLoading"
+      :size="50"
+      color="#3b82f6"
+      :borderWidth="4"
+      :background="true"
+      position="fixed"
+    />
 
     <HospitalTable
       v-else-if="currentRecord"
@@ -49,9 +55,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import type { Record } from "../../typings/record";
+import type { ApiError } from "../../typings/apiError";
 import UButton from "../components/Ui/UButton.vue";
+import USpinner from "../components/Ui/USpinner.vue";
 
-const isLoading = ref(true);
+const { isContentLoading, toggleLoading, showError, showMessage } = useToast();
+toggleLoading(true);
+
 const isLoadingOpenRecords = ref(false);
 const currentRecord = ref<Record | null>(null);
 const fetchedOpenRecords = ref<Record[]>([]);
@@ -70,7 +80,7 @@ function selectRecord(record: Record) {
 
 async function fetchTodayRecords() {
   try {
-    isLoading.value = true;
+    toggleLoading(true);
     const today = new Date().toISOString().split("T")[0];
 
     const data = await $fetch(`/api/record/date/${today}`);
@@ -87,8 +97,9 @@ async function fetchTodayRecords() {
     }
   } catch (err) {
     console.error("Ошибка при загрузке данных:", err);
+    showError(err as ApiError, { autoClose: 1000 });
   } finally {
-    isLoading.value = false;
+    toggleLoading(false);
   }
 }
 
@@ -100,8 +111,10 @@ async function handleRecordUpdate(updatedRecord: Record) {
       body: updatedRecord,
     });
     currentRecord.value = updatedRecord;
+    showMessage({ autoClose: 1000 });
   } catch (err) {
-    console.error("Ошибка при обновлении данных:", err);
+    console.log("Ошибка при обновлении данных:", err);
+    showError(err as ApiError, { autoClose: 1000 });
   } finally {
     isLoadingOpenRecords.value = false;
   }

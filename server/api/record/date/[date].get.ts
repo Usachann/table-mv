@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     if (!date) {
       throw createError({
         statusCode: 400,
-        message: "Дата не указана",
+        statusMessage: "Дата не указана",
       });
     }
 
@@ -33,11 +33,18 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    if (!records) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Записи не найдены",
+      });
+    }
+
     return records;
   } catch (error) {
     throw createError({
       statusCode: 500,
-      message:
+      statusMessage:
         error instanceof Error ? error.message : "Ошибка при получении записей",
     });
   }

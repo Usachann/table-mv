@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     if (!id) {
       throw createError({
         statusCode: 400,
-        message: "ID записи не указан",
+        statusMessage: "ID записи не указан",
       });
     }
 
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     if (!record) {
       throw createError({
         statusCode: 404,
-        message: "Запись не найдена",
+        statusMessage: "Запись не найдена",
       });
     }
 
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     throw createError({
       statusCode: 500,
-      message:
+      statusMessage:
         error instanceof Error
           ? error.message
           : "Ошибка при получении записи по айди",
