@@ -22,6 +22,7 @@ import { usePhoneInput } from "../composables/usePhoneInput";
 import useVuelidate from "@vuelidate/core";
 import StaffNamesAndTransportCost from "./StaffNamesAndTransportCost.vue";
 import { useAutoSave } from "../composables/useAutoSave";
+import { debounce } from "lodash-es";
 
 const validateRules = {
   motherPhone: {
@@ -147,6 +148,11 @@ function handleTimeChange(event: Event, row: TableData) {
 
 const v$ = useVuelidate(validateRules, validationState);
 
+const { saveToLocalStorage, getFromLocalStorage, clearLocalStorage } =
+  useAutoSave(() => {
+    getFromLocalStorage();
+  }, 10000);
+
 const updateRecord = (status: RecordStatus | null = null) => {
   if (!rows.value.length) {
     return;
@@ -162,6 +168,10 @@ const updateRecord = (status: RecordStatus | null = null) => {
     shootsCount: shootsCount.value,
     hospitalDischargesCount: hospitalDischargesCount.value,
   };
+
+  // console.log("updatedRecord", updatedRecord);
+  clearLocalStorage();
+  saveToLocalStorage(updatedRecord);
 
   emit("update:record", updatedRecord);
   isAddingRow.value = false;
@@ -205,6 +215,7 @@ async function handleConfirmClose() {
     updateRecord(RECORD_STATUS.CLOSED);
     showConfirmModal.value = false;
     navigateTo("/crecteRecord");
+    clearLocalStorage();
   } catch (error) {
     console.error("Error closing day:", error);
   }
@@ -213,7 +224,22 @@ async function handleConfirmClose() {
 function handleCancelClose() {
   showConfirmModal.value = false;
 }
-if (rows.value.length > 0) useAutoSave(updateRecord, 10000);
+
+const debouncedUpdateRecord = debounce(() => {
+  if (rows.value.length > 0) {
+    updateRecord();
+  }
+}, 2000);
+
+watch(
+  [rows, staffData, recycling, delayed, shootsCount, hospitalDischargesCount],
+  () => {
+    nextTick(() => {
+      debouncedUpdateRecord();
+    });
+  },
+  { deep: true }
+);
 </script>
 
 <template>

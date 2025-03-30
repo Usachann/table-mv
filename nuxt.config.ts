@@ -42,7 +42,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  plugins: ["~/plugins/vue3-toastify.client.ts"],
+  plugins: ["~/plugins/vue3-toastify.client.ts", "~/plugins/lodash.client.ts"],
   fonts: {
     families: [{ name: "montserrat", provider: "google" }],
   },
