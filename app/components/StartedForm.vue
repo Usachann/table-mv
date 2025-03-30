@@ -131,7 +131,7 @@ const form = ref<Form>({
   date: new Date().toISOString().substr(0, 10),
   hospital: "",
   staff: [
-    { staffName: "Ведущая", name: "", transportCost: 0 },
+    { staffName: "Администратор", name: "", transportCost: 0 },
     { staffName: "Фотограф", name: "", transportCost: 0 },
     { staffName: "Оператор", name: "", transportCost: 0 },
   ],

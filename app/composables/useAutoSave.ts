@@ -11,7 +11,6 @@ export function useAutoSave(callback: () => void, interval: number = 20000) {
   const startAutoSave = () => {
     autoSaveInterval = setInterval(() => {
       callback();
-      console.log("✅ Автосохранение...");
     }, interval);
   };
 
@@ -19,7 +18,6 @@ export function useAutoSave(callback: () => void, interval: number = 20000) {
     if (autoSaveInterval) {
       clearInterval(autoSaveInterval);
       autoSaveInterval = null;
-      console.log("🛑 Автосохранение остановлено");
     }
   };
 

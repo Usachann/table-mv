@@ -100,7 +100,7 @@ watch(
 );
 
 function getStaffLabel(index: number): string {
-  const labels = ["Ведущая", "Фотограф", "Видеооператор"];
+  const labels = ["Администратор", "Фотограф", "Видеооператор"];
   return labels[index] || `Сотрудник ${index + 1}`;
 }
 
