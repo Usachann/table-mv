@@ -9,7 +9,7 @@ export const GENDER = {
   TWINS: "ДВ",
 } as const;
 
-export const TABLE_RECORD_STATUSES = {
+export const TABLE_RECORD_STATUS = {
   SHOT: "Снимались",
   NOT_SHOT: "Не снимались",
 } as const;
@@ -19,7 +19,7 @@ export type RecordStatus = (typeof RECORD_STATUS)[keyof typeof RECORD_STATUS];
 export type Gender = (typeof GENDER)[keyof typeof GENDER];
 
 export type TableRecordStatus =
-  (typeof TABLE_RECORD_STATUSES)[keyof typeof TABLE_RECORD_STATUSES];
+  (typeof TABLE_RECORD_STATUS)[keyof typeof TABLE_RECORD_STATUS];
 
 export type Record = {
   id: string; // Уникальный ID записи

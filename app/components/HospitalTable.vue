@@ -8,7 +8,7 @@ import type {
 import { v4 as uuidv4 } from "uuid";
 import {
   GENDER,
-  TABLE_RECORD_STATUSES,
+  TABLE_RECORD_STATUS,
   RECORD_STATUS,
 } from "../../typings/record";
 import { ref, watch, computed } from "vue";
@@ -73,7 +73,7 @@ const formatTimeForInput = computed(() => {
 
 const shootsCount = computed(() => {
   return rows.value.filter(
-    (row) => row.tableRecordStatus === TABLE_RECORD_STATUSES.SHOT
+    (row) => row.tableRecordStatus === TABLE_RECORD_STATUS.SHOT
   ).length;
 });
 
@@ -119,7 +119,7 @@ function addRow() {
     childNumber: 1,
     time: new Date(),
     notes: "",
-    tableRecordStatus: TABLE_RECORD_STATUSES.SHOT,
+    tableRecordStatus: TABLE_RECORD_STATUS.SHOT,
     OPN: false,
     isSpecialCase: false,
   });
