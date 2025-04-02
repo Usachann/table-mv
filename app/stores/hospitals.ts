@@ -12,6 +12,8 @@ export const useHospitalStore = defineStore("hospitalStore", {
       { id: 6, name: "Подольск" },
       { id: 7, name: "Одинцово" },
       { id: 8, name: "Раменское" },
+      { id: 9, name: "TEST" },
+      { id: 10, name: "TEST2" },
     ] as Hospital[],
   }),
 

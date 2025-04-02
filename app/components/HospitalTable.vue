@@ -202,6 +202,7 @@ async function handleCloseDay() {
   if (v$.value.$invalid) {
     return;
   }
+  console.log("sdf");
 
   if (!rows.value.length) return;
   showConfirmModal.value = true;
@@ -209,6 +210,7 @@ async function handleCloseDay() {
 
 async function handleConfirmClose() {
   v$.value.$touch();
+  console.log("sdf");
   try {
     const updatedRecord = {
       ...props.record,
@@ -229,6 +231,7 @@ async function handleConfirmClose() {
     if (!response.success) {
       throw new Error("Ошибка при закрытии дня");
     }
+
     updateRecord(RECORD_STATUS.CLOSED);
     showConfirmModal.value = false;
     clearLocalStorage();

@@ -131,7 +131,7 @@
             }"
           >
             <option
-              v-for="childNumber in 10"
+              v-for="childNumber in 5"
               :key="childNumber"
               :value="childNumber"
             >
