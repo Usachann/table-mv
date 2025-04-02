@@ -31,7 +31,7 @@ export type Record = {
   hospitalDischargesCount: number; // Количество выписок
   staffInShift: StaffInShift[]; // Сотрудники в смене
   tableData: TableData[]; // Данные по пациентам
-  recycling?: string; // Переработка
+  recycling?: Date; // Переработка
   delayed?: string; // Опоздавшие
 };
 
@@ -52,7 +52,7 @@ export type TableData = {
   motherName?: string; // Имя матери
   fatherPhone?: string; // Телефон отца
   fatherName?: string; // Имя отца
-  gender: Gender; // Пол
+  gender: string; // Пол
   childNumber: number; // Номер ребенка (по счету)
   time: Date; // Время
   notes?: string; // Заметки (опционально)

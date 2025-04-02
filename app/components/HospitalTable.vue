@@ -5,12 +5,9 @@ import type {
   TableData,
   RecordStatus,
 } from "../../typings/record";
+import type { ApiError } from "../../typings/apiError";
 import { v4 as uuidv4 } from "uuid";
-import {
-  GENDER,
-  TABLE_RECORD_STATUS,
-  RECORD_STATUS,
-} from "../../typings/record";
+import { TABLE_RECORD_STATUS, RECORD_STATUS } from "../../typings/record";
 import { ref, watch, computed } from "vue";
 import TextInput from "./Ui/TextInput.vue";
 import ConfirmModal from "./Ui/ConfirmModal.vue";
@@ -23,6 +20,8 @@ import useVuelidate from "@vuelidate/core";
 import StaffNamesAndTransportCost from "./StaffNamesAndTransportCost.vue";
 import { useAutoSave } from "../composables/useAutoSave";
 import { debounce } from "lodash-es";
+
+const { isContentLoading, toggleLoading, showError, showMessage } = useToast();
 
 const validateRules = {
   motherPhone: {
@@ -56,13 +55,14 @@ const staffComponent = ref<InstanceType<
   typeof StaffNamesAndTransportCost
 > | null>(null);
 
-const recycling: Ref<string> = ref("");
+const recycling: Ref<Date | null> = ref(null);
+
 const delayed: Ref<string> = ref(""); //уточнить
 const showConfirmModal: Ref<boolean> = ref(false);
 const isAddingRow: Ref<boolean> = ref(false);
 
 const formatTimeForInput = computed(() => {
-  return (date: Date) => {
+  return (date: Date | null) => {
     if (!date) return "";
     const d = new Date(date);
     const hours = d.getHours().toString().padStart(2, "0");
@@ -81,6 +81,25 @@ const hospitalDischargesCount = computed(() => {
   return rows.value.length;
 });
 
+function handleTimeChangeForRecycling(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const timeParts = target.value.split(":");
+  if (timeParts.length !== 2) return;
+
+  const hours = Number(timeParts[0]);
+  const minutes = Number(timeParts[1]);
+  if (isNaN(hours) || isNaN(minutes)) return;
+
+  if (!recycling.value) {
+    recycling.value = new Date();
+  }
+
+  const newDate = new Date(recycling.value);
+  newDate.setHours(hours);
+  newDate.setMinutes(minutes);
+  recycling.value = newDate;
+}
+
 function autoResize(event: Event) {
   const target = event.target as HTMLTextAreaElement;
   target.style.height = "auto";
@@ -93,7 +112,7 @@ watch(
     if (newRecord) {
       staffData.value = [...newRecord.staffInShift];
       rows.value = [...newRecord.tableData];
-      recycling.value = newRecord.recycling || "";
+      recycling.value = newRecord.recycling || null;
       delayed.value = newRecord.delayed || "";
     }
   },
@@ -104,8 +123,9 @@ function getStaffLabel(index: number): string {
   const labels = ["Администратор", "Фотограф", "Видеооператор"];
   return labels[index] || `Сотрудник ${index + 1}`;
 }
-
 function addRow() {
+  const rowTime = new Date();
+
   rows.value.push({
     recordId: uuidv4(),
     floor: 0,
@@ -115,9 +135,9 @@ function addRow() {
     motherName: "",
     fatherPhone: "",
     fatherName: "",
-    gender: GENDER.MALE,
-    childNumber: 1,
-    time: new Date(),
+    gender: "",
+    childNumber: 0,
+    time: rowTime,
     notes: "",
     tableRecordStatus: TABLE_RECORD_STATUS.SHOT,
     OPN: false,
@@ -163,7 +183,7 @@ const updateRecord = (status: RecordStatus | null = null) => {
     recordStatus: status || props.record.recordStatus,
     tableData: rows.value,
     staffInShift: staffData.value,
-    recycling: recycling.value,
+    recycling: recycling.value ?? undefined,
     delayed: delayed.value,
     shootsCount: shootsCount.value,
     hospitalDischargesCount: hospitalDischargesCount.value,
@@ -200,23 +220,21 @@ async function handleConfirmClose() {
       shootsCount: shootsCount.value,
       hospitalDischargesCount: hospitalDischargesCount.value,
     };
+
     const response = await $fetch("/api/close-record", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ record: updatedRecord }),
+      body: { record: updatedRecord },
     });
 
     if (!response.success) {
       throw new Error("Ошибка при закрытии дня");
     }
-
     updateRecord(RECORD_STATUS.CLOSED);
     showConfirmModal.value = false;
-    navigateTo("/crecteRecord");
     clearLocalStorage();
+    navigateTo("/crecteRecord");
   } catch (error) {
+    showError(error as ApiError, { autoClose: 1000 });
     console.error("Error closing day:", error);
   }
 }
@@ -238,7 +256,7 @@ watch(
       debouncedUpdateRecord();
     });
   },
-  { deep: true }
+  { deep: true, flush: "post" }
 );
 </script>
 
@@ -311,21 +329,29 @@ watch(
       >
         Переработка
       </h4>
-      <TextInput
-        v-model:input="recycling"
-        input-type="text"
-        placeholder="Время последней выписки"
-      />
+      <div class="flex flex-row items-end gap-4 md:items-end mb-2">
+        <div class="w-full md:w-1/2">
+          <label class="block text-gray-700 font-semibold mb-1">
+            Время последней выписки:
+          </label>
+          <TextInput
+            :input="formatTimeForInput(recycling)"
+            input-type="time"
+            placeholder="Время последней выписки"
+            @input="handleTimeChangeForRecycling"
+          />
+        </div>
 
-      <div style="margin-bottom: 10px">
-        <label class="block text-gray-700 font-semibold mb-1"
-          >Опоздавшие:</label
-        >
-        <TextInput
-          v-model:input="delayed"
-          input-type="text"
-          placeholder="Фамилии"
-        />
+        <div class="w-full flex flex-col md:w-1/2">
+          <label class="block text-gray-700 font-semibold mb-1">
+            Опоздавшие:
+          </label>
+          <TextInput
+            v-model:input="delayed"
+            input-type="text"
+            placeholder="Фамилии"
+          />
+        </div>
       </div>
 
       <div style="margin-bottom: 10px">

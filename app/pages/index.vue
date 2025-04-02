@@ -111,7 +111,6 @@ async function handleRecordUpdate(updatedRecord: Record) {
       body: updatedRecord,
     });
     currentRecord.value = updatedRecord;
-    showMessage({ autoClose: 1000 });
   } catch (err) {
     console.log("Ошибка при обновлении данных:", err);
     showError(err as ApiError, { autoClose: 1000 });

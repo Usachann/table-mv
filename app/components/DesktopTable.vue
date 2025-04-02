@@ -22,11 +22,18 @@
         <tr v-for="(row, index) in rows" :key="index">
           <td>{{ index + 1 }}</td>
           <td>
-            <TextInput
-              v-model:input="row.floor"
-              input-type="number"
-              placeholder="Этаж"
-            />
+            <select
+              class="rounded-md"
+              v-model="row.floor"
+              :style="{
+                borderColor: row.floor ? '' : '#ff0000',
+                borderWidth: row.floor ? '' : '2px',
+              }"
+            >
+              <option v-for="floor in 10" :key="floor" :value="floor">
+                {{ floor }}
+              </option>
+            </select>
           </td>
           <td>
             <select class="rounded-md" v-model="row.tableRecordStatus">
@@ -57,11 +64,19 @@
               :max="17"
               @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
             />
-            <TextInput
-              v-model:input="row.motherName"
-              input-type="text"
-              placeholder="Имя"
-            />
+            <textarea
+              v-model="row.motherName"
+              class="rounded-md p-2"
+              :style="{
+                borderColor: row.motherName ? '' : '#ff0000',
+                borderWidth: row.fatherName ? '' : '2px',
+              }"
+              rows="1"
+              cols="30"
+              placeholder="Имя мамы"
+              style="resize: none; overflow: hidden"
+              @input="autoResize($event)"
+            ></textarea>
           </td>
           <td>
             <TextInput
@@ -72,25 +87,51 @@
               :max="17"
               @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
             />
-            <TextInput
-              v-model:input="row.fatherName"
-              input-type="text"
-              placeholder="Имя"
-            />
+            <textarea
+              class="rounded-md p-2"
+              v-model="row.fatherName"
+              rows="1"
+              cols="30"
+              placeholder="Имя папы"
+              :style="{
+                borderColor: row.fatherName ? '' : '#ff0000',
+                borderWidth: row.fatherName ? '' : '2px',
+              }"
+              style="resize: none; overflow: hidden"
+              @input="autoResize($event)"
+            ></textarea>
           </td>
           <td>
-            <select class="rounded-md" v-model="row.gender">
+            <select
+              class="rounded-md"
+              v-model="row.gender"
+              :style="{
+                borderColor: row.gender ? '' : '#ff0000',
+                borderWidth: row.gender ? '' : '2px',
+              }"
+            >
               <option value="М">М</option>
               <option value="Ж">Ж</option>
               <option value="ДВ">ДВ</option>
             </select>
           </td>
           <td>
-            <TextInput
-              v-model:input="row.childNumber"
-              input-type="number"
-              placeholder="Номер"
-            />
+            <select
+              class="rounded-md"
+              v-model="row.childNumber"
+              :style="{
+                borderColor: row.childNumber ? '' : '#ff0000',
+                borderWidth: row.childNumber ? '' : '2px',
+              }"
+            >
+              <option
+                v-for="childNumber in 10"
+                :key="childNumber"
+                :value="childNumber"
+              >
+                {{ childNumber }}
+              </option>
+            </select>
           </td>
           <td>
             <TextInput
@@ -102,7 +143,7 @@
           </td>
           <td>
             <textarea
-              class="rounded-lg"
+              class="rounded-md p-2 border-[#D1D5DB]"
               v-model="row.notes"
               rows="1"
               cols="30"
@@ -162,8 +203,10 @@ function autoResize(event: Event) {
 
 <style lang="scss" scoped>
 .table-wrapper {
+  overflow-x: scroll;
   width: 100%;
-  overflow-x: auto;
+  max-width: 100%;
+  min-height: 40px;
 }
 
 table {
@@ -171,19 +214,29 @@ table {
   border-collapse: collapse;
   min-width: 600px;
   margin-bottom: 20px;
+  table-layout: auto;
 }
 
 th,
 td {
   border: 1px solid #ccc;
   padding: 8px;
-  text-align: left;
+  // text-align: left;
+}
+th:nth-child(4), td:nth-child(4), /* Телефон мамы */
+th:nth-child(5), td:nth-child(5), /* Фамилия */
+th:nth-child(6), td:nth-child(6), /* Телефон мамы */
+th:nth-child(7), td:nth-child(7)  /* Телефон папы */ {
+  min-width: 160px;
+}
+
+th:nth-child(11), td:nth-child(11) /* Пометки */ {
+  min-width: 150px;
 }
 
 select,
 textarea {
   width: 100%;
-  padding: 6px;
   border: 1px solid #ccc;
   font-size: 14px;
 }

@@ -15,14 +15,19 @@
 
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label class="block text-m font-medium text-gray-700 mb-1"
-            >Этаж</label
+          <label class="text-m font-medium text-gray-700 mb-1">Этаж</label>
+          <select
+            class="rounded-md w-full"
+            v-model="row.floor"
+            :style="{
+              borderColor: row.floor ? '' : '#ff0000',
+              borderWidth: row.floor ? '' : '2px',
+            }"
           >
-          <TextInput
-            v-model:input="row.floor"
-            input-type="number"
-            placeholder="Этаж"
-          />
+            <option v-for="floor in 10" :key="floor" :value="floor">
+              {{ floor }}
+            </option>
+          </select>
         </div>
         <div>
           <label class="block text-m font-medium text-gray-700 mb-1"
@@ -57,11 +62,19 @@
           :max="17"
           @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
         />
-        <TextInput
-          v-model:input="row.motherName"
-          input-type="text"
-          placeholder="Имя"
-        />
+        <textarea
+          v-model="row.motherName"
+          class="rounded-md p-2 w-full"
+          :style="{
+            borderColor: row.motherName ? '' : '#ff0000',
+            borderWidth: row.fatherName ? '' : '2px',
+          }"
+          rows="1"
+          cols="30"
+          placeholder="Имя мамы"
+          style="resize: none; overflow: hidden"
+          @input="autoResize($event)"
+        ></textarea>
       </div>
 
       <div class="mb-4">
@@ -74,17 +87,32 @@
           :max="17"
           @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
         />
-        <TextInput
-          v-model:input="row.fatherName"
-          input-type="text"
-          placeholder="Имя"
-        />
+        <textarea
+          class="rounded-md p-2 w-full"
+          v-model="row.fatherName"
+          rows="1"
+          cols="30"
+          placeholder="Имя папы"
+          :style="{
+            borderColor: row.fatherName ? '' : '#ff0000',
+            borderWidth: row.fatherName ? '' : '2px',
+          }"
+          style="resize: none; overflow: hidden"
+          @input="autoResize($event)"
+        ></textarea>
       </div>
 
       <div class="grid grid-cols-3 gap-4 mb-4">
         <div>
           <label class="block text-m font-medium text-gray-700 mb-1">Пол</label>
-          <select class="rounded-md w-full" v-model="row.gender">
+          <select
+            class="rounded-md w-full"
+            v-model="row.gender"
+            :style="{
+              borderColor: row.gender ? '' : '#ff0000',
+              borderWidth: row.gender ? '' : '2px',
+            }"
+          >
             <option value="М">М</option>
             <option value="Ж">Ж</option>
             <option value="ДВ">ДВ</option>
@@ -94,11 +122,22 @@
           <label class="block text-m font-medium text-gray-700 mb-1"
             >Ребенок</label
           >
-          <TextInput
-            v-model:input="row.childNumber"
-            input-type="number"
-            placeholder="Номер"
-          />
+          <select
+            class="rounded-md w-full"
+            v-model="row.childNumber"
+            :style="{
+              borderColor: row.childNumber ? '' : '#ff0000',
+              borderWidth: row.childNumber ? '' : '2px',
+            }"
+          >
+            <option
+              v-for="childNumber in 10"
+              :key="childNumber"
+              :value="childNumber"
+            >
+              {{ childNumber }}
+            </option>
+          </select>
         </div>
         <div>
           <label class="block text-m font-medium text-gray-700 mb-1"
@@ -215,6 +254,6 @@ function autoResize(event: Event) {
 
 .mobile-row textarea {
   resize: vertical;
-  min-height: 80px;
+  // min-height: 80px;
 }
 </style>

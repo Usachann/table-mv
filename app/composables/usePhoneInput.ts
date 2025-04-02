@@ -11,10 +11,10 @@ export function usePhoneInput(validationState: Ref<{ [key: string]: string }>) {
     if (cleaned.length === 0) return "";
 
     let formatted = "+7";
-    if (cleaned.length > 0) formatted += "(" + cleaned.slice(0, 3);
-    if (cleaned.length > 3) formatted += ")" + cleaned.slice(3, 6);
-    if (cleaned.length > 6) formatted += "-" + cleaned.slice(6, 8);
-    if (cleaned.length > 8) formatted += "-" + cleaned.slice(8, 10);
+    if (cleaned.length > 0) formatted += " " + cleaned.slice(0, 3);
+    if (cleaned.length > 3) formatted += " " + cleaned.slice(3, 6);
+    if (cleaned.length > 6) formatted += " " + cleaned.slice(6, 8);
+    if (cleaned.length > 8) formatted += " " + cleaned.slice(8, 10);
 
     return formatted;
   };

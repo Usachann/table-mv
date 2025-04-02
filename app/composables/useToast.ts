@@ -58,10 +58,13 @@ export default () => {
     });
   };
 
-  const showMessage = (options: ToastOptions = {}) => {
+  const showMessage = (
+    options: ToastOptions = {},
+    text: string = "Данные успешно сохранены!"
+  ) => {
     const finalOptions = { ...defaultOptions, ...options };
 
-    toast.success("Данные успешно сохранены!", finalOptions);
+    toast.success(text, finalOptions);
   };
 
   return {

@@ -46,24 +46,24 @@ export function useAutoSave(callback: () => void, interval: number = 10000) {
     }
   };
 
-  const startAutoSave = () => {
-    autoSaveInterval = setInterval(() => {
-      const offlineData = getFromLocalStorage();
-      if (!navigator.onLine && offlineData) {
-        saveToLocalStorage(offlineData);
-      } else {
-        callback();
-      }
-    }, interval);
-  };
+  // const startAutoSave = () => {
+  //   autoSaveInterval = setInterval(() => {
+  //     const offlineData = getFromLocalStorage();
+  //     if (!navigator.onLine && offlineData) {
+  //       saveToLocalStorage(offlineData);
+  //     } else {
+  //       callback();
+  //     }
+  //   }, interval);
+  // };
 
-  const stopAutoSave = () => {
-    if (autoSaveInterval) {
-      clearInterval(autoSaveInterval);
-      autoSaveInterval = null;
-      console.log("🛑 Автосохранение остановлено");
-    }
-  };
+  // const stopAutoSave = () => {
+  //   if (autoSaveInterval) {
+  //     clearInterval(autoSaveInterval);
+  //     autoSaveInterval = null;
+  //     console.log("🛑 Автосохранение остановлено");
+  //   }
+  // };
 
   const handleOnline = async () => {
     await checkNetworkAndSync();
@@ -71,11 +71,11 @@ export function useAutoSave(callback: () => void, interval: number = 10000) {
 
   onMounted(() => {
     window.addEventListener("online", handleOnline);
-    startAutoSave();
+    // startAutoSave();
   });
 
   onBeforeUnmount(() => {
-    stopAutoSave();
+    // stopAutoSave();
     window.removeEventListener("online", handleOnline);
   });
 

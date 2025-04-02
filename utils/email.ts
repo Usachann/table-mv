@@ -25,6 +25,7 @@ interface EmailData {
     notes: string;
     tableRecordStatus: string;
     OPN: boolean;
+    isSpecialCase: boolean;
   }>;
 }
 
@@ -63,6 +64,7 @@ export async function sendDayReportEmail(data: EmailData) {
     <td>${new Date(row.time).toLocaleTimeString()}</td>
     <td>${row.notes}</td>
     <td>${row.OPN ? "Да" : "Нет"}</td>
+    <td>${row.isSpecialCase ? "Да" : "Нет"}</td>
   </tr>
 `
     )
@@ -144,6 +146,7 @@ export async function sendDayReportEmail(data: EmailData) {
           <th>Время</th>
           <th>Пометки</th>
           <th>ОПН</th>
+          <th>М/е, ин-цы</th>
         </tr>
       </thead>
       <tbody>
