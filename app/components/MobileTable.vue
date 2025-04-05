@@ -24,7 +24,7 @@
               borderWidth: row.floor ? '' : '2px',
             }"
           >
-            <option v-for="floor in 10" :key="floor" :value="floor">
+            <option v-for="floor in 5" :key="floor" :value="floor">
               {{ floor }}
             </option>
           </select>
@@ -166,18 +166,19 @@
 
       <div class="mb-3">
         <label class="block text-m font-medium text-gray-700 mb-1">ОПН</label>
-        <select class="rounded-md w-full" v-model="row.OPN">
-          <option :value="true">Да</option>
-          <option :value="false">Нет</option>
-        </select>
+        <TextInput
+          input-type="checkbox"
+          v-model:input="row.OPN"
+          class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+        />
       </div>
       <div class="flex flex-col gap-1">
         <label class="block text-m font-medium text-gray-700 mb-1"
           >М/е, ин-цы</label
         >
-        <input
-          type="checkbox"
-          v-model="row.isSpecialCase"
+        <TextInput
+          input-type="checkbox"
+          v-model:input="row.isSpecialCase"
           class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
         />
       </div>
@@ -189,7 +190,7 @@
 import type { TableData } from "../../typings/record";
 import TextInput from "./Ui/TextInput.vue";
 
-const props = defineProps<{
+defineProps<{
   rows: TableData[];
   formatTimeForInput: (date: Date) => string;
 }>();

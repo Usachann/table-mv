@@ -8,13 +8,19 @@ export function usePhoneInput(validationState: Ref<{ [key: string]: string }>) {
       cleaned = cleaned.slice(1);
     }
 
-    if (cleaned.length === 0) return "";
+    cleaned = cleaned.slice(0, 10);
+
+    const part1 = cleaned.slice(0, 3);
+    const part2 = cleaned.slice(3, 6);
+    const part3 = cleaned.slice(6, 8);
+    const part4 = cleaned.slice(8, 10);
 
     let formatted = "+7";
-    if (cleaned.length > 0) formatted += " " + cleaned.slice(0, 3);
-    if (cleaned.length > 3) formatted += " " + cleaned.slice(3, 6);
-    if (cleaned.length > 6) formatted += " " + cleaned.slice(6, 8);
-    if (cleaned.length > 8) formatted += " " + cleaned.slice(8, 10);
+
+    if (part1) formatted += ` ${part1}`;
+    if (part2) formatted += ` ${part2}`;
+    if (part3) formatted += ` ${part3}`;
+    if (part4) formatted += ` ${part4}`;
 
     return formatted;
   };
@@ -25,10 +31,11 @@ export function usePhoneInput(validationState: Ref<{ [key: string]: string }>) {
     field: string
   ) => {
     const input = event.target as HTMLInputElement;
-    const formatted = formatPhoneNumber(input.value);
 
+    const formatted = formatPhoneNumber(input.value);
     target[field] = formatted;
-    if (validationState) {
+
+    if (validationState?.value) {
       validationState.value[field] = formatted;
     }
   };

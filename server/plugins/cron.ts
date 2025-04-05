@@ -3,7 +3,8 @@ import prisma from "~~/lib/prisma";
 import { RECORD_STATUS } from "../../typings/record";
 
 export default defineNitroPlugin(() => {
-  cron.schedule("59 23 * * *", async () => {
+  cron.schedule("55 23 * * *", async () => {
+    // Запуск каждую минуту
     console.log("Запуск CRON-задачи для отправки email...");
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
@@ -28,7 +29,7 @@ export default defineNitroPlugin(() => {
       },
     });
 
-    if (records.length === 0) {
+    if (!records.length) {
       return;
     }
 
@@ -47,7 +48,7 @@ export default defineNitroPlugin(() => {
         console.error(`Ошибка при обработке записи ${record.id}:`, error);
       }
     }
-  });
 
-  console.log("CRON-задача запущена: отправка email в 23:59.");
+    console.log("CRON-задача выполнена!");
+  });
 });

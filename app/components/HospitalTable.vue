@@ -200,17 +200,18 @@ const updateRecord = (status: RecordStatus | null = null) => {
 async function handleCloseDay() {
   v$.value.$touch();
   if (v$.value.$invalid) {
+    console.log("handleCloseDay error");
     return;
   }
-  console.log("sdf");
 
-  if (!rows.value.length) return;
+  if (!rows.value.length) {
+    return;
+  }
   showConfirmModal.value = true;
 }
 
 async function handleConfirmClose() {
   v$.value.$touch();
-  console.log("sdf");
   try {
     const updatedRecord = {
       ...props.record,
@@ -317,6 +318,7 @@ watch(
         :loading="isLoadingOpenRecords"
         type="secondary"
         @click.prevent="updateRecord()"
+        :disabled="isLoadingOpenRecords"
         >Сохранить</UButton
       >
     </div>

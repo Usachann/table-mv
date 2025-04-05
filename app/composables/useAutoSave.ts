@@ -13,7 +13,7 @@ export function useAutoSave(callback: () => void, interval: number = 10000) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      console.error("❗ Ошибка при сохранении в localStorage:", error);
+      console.error("Ошибка при сохранении в localStorage:", error);
     }
   };
 
@@ -22,7 +22,7 @@ export function useAutoSave(callback: () => void, interval: number = 10000) {
       const data = localStorage.getItem(STORAGE_KEY);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error("❗ Ошибка при получении данных из localStorage:", error);
+      console.error("Ошибка при получении данных из localStorage:", error);
       return null;
     }
   };
@@ -37,33 +37,23 @@ export function useAutoSave(callback: () => void, interval: number = 10000) {
       const offlineData = getFromLocalStorage();
       if (offlineData) {
         try {
-          await callback();
+          callback();
           clearLocalStorage();
         } catch (err) {
-          console.error("❗ Ошибка при синхронизации данных:", err);
+          console.error("Ошибка при синхронизации данных:", err);
         }
       }
     }
   };
 
-  // const startAutoSave = () => {
-  //   autoSaveInterval = setInterval(() => {
-  //     const offlineData = getFromLocalStorage();
-  //     if (!navigator.onLine && offlineData) {
-  //       saveToLocalStorage(offlineData);
-  //     } else {
-  //       callback();
-  //     }
-  //   }, interval);
-  // };
-
-  // const stopAutoSave = () => {
-  //   if (autoSaveInterval) {
-  //     clearInterval(autoSaveInterval);
-  //     autoSaveInterval = null;
-  //     console.log("🛑 Автосохранение остановлено");
-  //   }
-  // };
+  const startAutoSave = () => {
+    const offlineData = getFromLocalStorage();
+    if (!navigator.onLine && offlineData) {
+      saveToLocalStorage(offlineData);
+    } else {
+      callback();
+    }
+  };
 
   const handleOnline = async () => {
     await checkNetworkAndSync();
@@ -71,11 +61,10 @@ export function useAutoSave(callback: () => void, interval: number = 10000) {
 
   onMounted(() => {
     window.addEventListener("online", handleOnline);
-    // startAutoSave();
+    startAutoSave();
   });
 
   onBeforeUnmount(() => {
-    // stopAutoSave();
     window.removeEventListener("online", handleOnline);
   });
 

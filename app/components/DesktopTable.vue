@@ -30,7 +30,7 @@
                 borderWidth: row.floor ? '' : '2px',
               }"
             >
-              <option v-for="floor in 10" :key="floor" :value="floor">
+              <option v-for="floor in 5" :key="floor" :value="floor">
                 {{ floor }}
               </option>
             </select>
@@ -59,7 +59,7 @@
             <TextInput
               v-model:input="row.motherPhone"
               input-type="text"
-              placeholder="Тел."
+              placeholder="+7"
               class="mb-1"
               :max="17"
               @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
@@ -82,7 +82,7 @@
             <TextInput
               v-model:input="row.fatherPhone"
               input-type="text"
-              placeholder="Тел."
+              placeholder="+7"
               class="mb-1"
               :max="17"
               @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
@@ -152,17 +152,20 @@
             ></textarea>
           </td>
           <td>
-            <select class="rounded-md" v-model="row.OPN">
-              <option :value="true">Да</option>
-              <option :value="false">Нет</option>
-            </select>
+            <div class="flex items-center justify-center">
+              <TextInput
+                input-type="checkbox"
+                v-model:input="row.OPN"
+                class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+              />
+            </div>
           </td>
           <td>
             <div class="flex items-center justify-center">
-              <input
-                type="checkbox"
-                v-model="row.isSpecialCase"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              <TextInput
+                input-type="checkbox"
+                v-model:input="row.isSpecialCase"
+                class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
               />
             </div>
           </td>
@@ -176,7 +179,7 @@
 import type { TableData } from "../../typings/record";
 import TextInput from "./Ui/TextInput.vue";
 
-const props = defineProps<{
+defineProps<{
   rows: TableData[];
   formatTimeForInput: (date: Date) => string;
 }>();

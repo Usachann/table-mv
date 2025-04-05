@@ -3,13 +3,15 @@
     <input
       :placeholder="placeholder"
       :maxlength="max"
-      class="w-full bg-white text-gray-800 border text-sm border-[#D1D5DB] rounded-md p-2 placeholder-gray-500 focus:outline-none"
       @focus="isFocused = true"
       @blur="isFocused = false"
-      :class="{
-        'border-gray-900': isFocused,
-        'border-red-500': error,
-      }"
+      :class="[
+        inputType === 'checkbox' ? 'w-6 h-6' : 'w-full p-2',
+        'bg-white text-gray-800 border text-sm border-[#D1D5DB] rounded-md placeholder-gray-500 focus:outline-none',
+        isFocused ? 'border-gray-900' : '',
+        error ? 'border-red-500' : '',
+        $attrs.class,
+      ]"
       :type="inputType"
       v-model="inputComputed"
     />

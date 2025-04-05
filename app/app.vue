@@ -1,6 +1,6 @@
 <script setup>
 useHead({
-  title: "Table mvp",
+  title: "Table",
 });
 </script>
 
