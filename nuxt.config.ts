@@ -8,10 +8,6 @@ export default defineNuxtConfig({
   experimental: {
     appManifest: false,
   },
-  nitro: {
-    preset: "node",
-  },
-
   debug: false,
   ssr: true,
   devtools: { enabled: true },

@@ -13,30 +13,158 @@
         </select>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="text-m font-medium text-gray-700 mb-1">Этаж</label>
-          <select
-            class="rounded-md w-full"
-            v-model="row.floor"
-            :style="{
-              borderColor: row.floor ? '' : '#ff0000',
-              borderWidth: row.floor ? '' : '2px',
-            }"
-          >
-            <option v-for="floor in 5" :key="floor" :value="floor">
-              {{ floor }}
-            </option>
-          </select>
+      <div v-if="row.tableRecordStatus === 'Снимались'">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div style="display: none">
+            <label class="text-m font-medium text-gray-700 mb-1">Этаж</label>
+            <select
+              class="rounded-md w-full"
+              v-model="row.floor"
+              :style="{
+                borderColor: row.floor ? '' : '#ff0000',
+                borderWidth: row.floor ? '' : '2px',
+              }"
+            >
+              <option v-for="floor in 5" :key="floor" :value="floor">
+                {{ floor }}
+              </option>
+            </select>
+          </div>
+          <div style="display: none">
+            <label class="block text-m font-medium text-gray-700 mb-1">
+              Медсестра
+            </label>
+            <TextInput
+              v-model:input="row.nurseName"
+              input-type="text"
+              placeholder="Фамилия"
+            />
+          </div>
         </div>
-        <div>
+
+        <div class="mb-4">
           <label class="block text-m font-medium text-gray-700 mb-1"
-            >Медсестра</label
+            >Мама</label
           >
           <TextInput
-            v-model:input="row.nurseName"
+            v-model:input="row.motherPhone"
             input-type="text"
-            placeholder="Фамилия"
+            placeholder="+7"
+            class="mb-1"
+            :max="17"
+            @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
+          />
+          <textarea
+            v-model="row.motherName"
+            class="rounded-md p-2 w-full"
+            :style="{
+              borderColor: row.motherName ? '' : '#ff0000',
+              borderWidth: row.fatherName ? '' : '2px',
+            }"
+            rows="1"
+            cols="30"
+            placeholder="Имя мамы"
+            style="resize: none; overflow: hidden"
+            @input="autoResize($event)"
+          ></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-m font-medium text-gray-700 mb-1"
+            >Папа</label
+          >
+          <TextInput
+            v-model:input="row.fatherPhone"
+            input-type="text"
+            placeholder="+7"
+            class="mb-1"
+            :max="17"
+            @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
+          />
+          <textarea
+            class="rounded-md p-2 w-full"
+            v-model="row.fatherName"
+            rows="1"
+            cols="30"
+            placeholder="Имя папы"
+            :style="{
+              borderColor: row.fatherName ? '' : '#ff0000',
+              borderWidth: row.fatherName ? '' : '2px',
+            }"
+            style="resize: none; overflow: hidden"
+            @input="autoResize($event)"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-m font-medium text-gray-700 mb-1"
+              >Пол</label
+            >
+            <select
+              class="rounded-md w-full"
+              v-model="row.gender"
+              :style="{
+                borderColor: row.gender ? '' : '#ff0000',
+                borderWidth: row.gender ? '' : '2px',
+              }"
+            >
+              <option value="М">М</option>
+              <option value="Ж">Д</option>
+              <option value="ДВ">ДВ</option>
+            </select>
+          </div>
+          <div style="display: none">
+            <label class="block text-m font-medium text-gray-700 mb-1">
+              Ребенок
+            </label>
+            <select
+              class="rounded-md w-full"
+              v-model="row.childNumber"
+              :style="{
+                borderColor: row.childNumber ? '' : '#ff0000',
+                borderWidth: row.childNumber ? '' : '2px',
+              }"
+            >
+              <option
+                v-for="childNumber in 5"
+                :key="childNumber"
+                :value="childNumber"
+              >
+                {{ childNumber }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-m font-medium text-gray-700 mb-1"
+              >Время</label
+            >
+            <TextInput
+              :input="formatTimeForInput(row.time)"
+              input-type="time"
+              placeholder="Время"
+              @input="handleTimeChange($event, row)"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="block text-m font-medium text-gray-700 mb-1">ОПН</label>
+          <TextInput
+            input-type="checkbox"
+            v-model:input="row.OPN"
+            class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="block text-m font-medium text-gray-700 mb-1">
+            М/е, ин-цы
+          </label>
+          <TextInput
+            input-type="checkbox"
+            v-model:input="row.isSpecialCase"
+            class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
           />
         </div>
       </div>
@@ -53,106 +181,6 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-m font-medium text-gray-700 mb-1">Мама</label>
-        <TextInput
-          v-model:input="row.motherPhone"
-          input-type="text"
-          placeholder="+7"
-          class="mb-1"
-          :max="17"
-          @input="(e) => handlePhoneInput(e, row, 'motherPhone')"
-        />
-        <textarea
-          v-model="row.motherName"
-          class="rounded-md p-2 w-full"
-          :style="{
-            borderColor: row.motherName ? '' : '#ff0000',
-            borderWidth: row.fatherName ? '' : '2px',
-          }"
-          rows="1"
-          cols="30"
-          placeholder="Имя мамы"
-          style="resize: none; overflow: hidden"
-          @input="autoResize($event)"
-        ></textarea>
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-m font-medium text-gray-700 mb-1">Папа</label>
-        <TextInput
-          v-model:input="row.fatherPhone"
-          input-type="text"
-          placeholder="+7"
-          class="mb-1"
-          :max="17"
-          @input="(e) => handlePhoneInput(e, row, 'fatherPhone')"
-        />
-        <textarea
-          class="rounded-md p-2 w-full"
-          v-model="row.fatherName"
-          rows="1"
-          cols="30"
-          placeholder="Имя папы"
-          :style="{
-            borderColor: row.fatherName ? '' : '#ff0000',
-            borderWidth: row.fatherName ? '' : '2px',
-          }"
-          style="resize: none; overflow: hidden"
-          @input="autoResize($event)"
-        ></textarea>
-      </div>
-
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <label class="block text-m font-medium text-gray-700 mb-1">Пол</label>
-          <select
-            class="rounded-md w-full"
-            v-model="row.gender"
-            :style="{
-              borderColor: row.gender ? '' : '#ff0000',
-              borderWidth: row.gender ? '' : '2px',
-            }"
-          >
-            <option value="М">М</option>
-            <option value="Ж">Ж</option>
-            <option value="ДВ">ДВ</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-m font-medium text-gray-700 mb-1"
-            >Ребенок</label
-          >
-          <select
-            class="rounded-md w-full"
-            v-model="row.childNumber"
-            :style="{
-              borderColor: row.childNumber ? '' : '#ff0000',
-              borderWidth: row.childNumber ? '' : '2px',
-            }"
-          >
-            <option
-              v-for="childNumber in 5"
-              :key="childNumber"
-              :value="childNumber"
-            >
-              {{ childNumber }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-m font-medium text-gray-700 mb-1"
-            >Время</label
-          >
-          <TextInput
-            :input="formatTimeForInput(row.time)"
-            input-type="time"
-            placeholder="Время"
-            @input="handleTimeChange($event, row)"
-          />
-        </div>
-      </div>
-
-      <div class="mb-4">
         <label class="block text-m font-medium text-gray-700 mb-1"
           >Пометки</label
         >
@@ -162,25 +190,6 @@
           rows="2"
           @input="autoResize($event)"
         ></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label class="block text-m font-medium text-gray-700 mb-1">ОПН</label>
-        <TextInput
-          input-type="checkbox"
-          v-model:input="row.OPN"
-          class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
-        />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="block text-m font-medium text-gray-700 mb-1"
-          >М/е, ин-цы</label
-        >
-        <TextInput
-          input-type="checkbox"
-          v-model:input="row.isSpecialCase"
-          class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
-        />
       </div>
     </div>
   </div>

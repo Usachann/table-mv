@@ -111,7 +111,7 @@
               }"
             >
               <option value="М">М</option>
-              <option value="Ж">Ж</option>
+              <option value="Ж">Д</option>
               <option value="ДВ">ДВ</option>
             </select>
           </td>
